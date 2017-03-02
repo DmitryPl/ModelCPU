@@ -1,0 +1,12 @@
+push 50 
+add
+push pp
+pp
+push pp
+push pp
+pp push
+pp
+push ax
+pop
+add
+ax
