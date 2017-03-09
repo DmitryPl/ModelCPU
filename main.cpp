@@ -10,7 +10,8 @@
 
 int main()
 {
-	int a = Dialog();
+	ASM Assembler;
+	const char* a = Assembler.Dialog();
 	if (a)
 	{
 		fprintf(stderr, "Press the button.\n", "w");

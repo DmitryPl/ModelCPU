@@ -6,46 +6,68 @@
 #include "assert.h"
 #include "string.h"
 #include "string"
-
-#define CHECK_CMD(STR, FUNC) if(strcmp(STR, word) == 0) { FUNC; return true; }
-
-enum Commands	{ ADD = 50, PUSH, POP, SIN, COS, DIV, SQRT, SUM, SUB, HMD };
-enum Register	{ N = 1, L, S, D };
-enum CPU		{ AX = 20, BX, CX, DX };
-
-//Are you sure with return? No. And pp???
+#include "List.h"
+#include "Data.h"
+#include "Enum.h"
+#include "algorithm" //reverse
 
 const int MAX_CMD_SIZE = 16;
 const int MAX_PATH_SIZE = 128;
 const int SUCCESS = 100500;
 
-int  Dialog();
-int  Files();
-bool Assembler();
-bool IsItNumber(char* word);
-bool Commands(char* word);
-bool Pusher();
-bool CommandsCPU(char* this_word);
-int  doNothing();
+size_t num;
 
-int  Dialog()
+#define CHECK_CMD(STR, CONST) if(STR == word) { (word = getStrFromNumber(CONST) + " "); num++; return word; } 
+#define COMMANDS_TO_JMP(STR, CONST) if(STR == word) { word = getStrFromNumber(CONST) + " "; num++; Marker(list, num); return word;}
+
+using std::string;
+
+class ASM
 {
-	int a;
+private:
+	data data_;
+	List* head_;
+public:
+
+	explicit ASM()
+	{
+		head_ = nullptr;
+	}
+
+	bool Assembler();
+	string Commands(string word);
+	bool Push(List* List);
+	const char* Dialog();
+	const char* Files();
+	string Pusher();
+	string Jumper(string word, List* List, size_t num);
+	bool Marker(List* List, size_t num);
+};
+
+bool IsItNumber(string word);
+int  doNothing();
+string CommandsCPU(string word);
+string getStrFromNumber(int num);
+
+const char* ASM::Dialog()
+{
+	char a[MAX_CMD_SIZE] = "output.txt";
+	const char* b;
 	printf("If you want to work with files enter \"file\". If you want to enter commands from console enter \"in\".\n");
 	char request[MAX_CMD_SIZE] = "";
 	scanf("%s", request);
 	if (strcmp("file", request) == 0)
 	{
-		a = Files();
+		b = Files();
 		Assembler();
-		return a;
+		return b;
 	}
 	else if (strcmp("in", request) == 0)
 	{
 		if (!freopen("output.txt", "w", stdout))
 		{
 			printf("Error - ASM - In\n");
-			return 0;
+			return false;
 		}
 		fprintf(stderr, "Enter commands\n", "w");
 		while (true)
@@ -59,16 +81,16 @@ int  Dialog()
 				return false;
 			}
 		}
-		return 1;
+		return a;
 	}
 	else
 	{
 		printf("Error - ASM - else\n");
-		return 0;
+		return false;
 	}
 }
 
-int  Files()
+const char* Files()
 {
 	char input[MAX_PATH_SIZE] = "";
 	char output[MAX_PATH_SIZE] = "";
@@ -82,27 +104,25 @@ int  Files()
 	{
 		printf("Error opening files\n");
 	}
-	return (*output_path);
+	return output_path;
 }
 
-bool Assembler()
+bool ASM::Assembler()
 {
 	while (!feof(stdin))
 	{
-		char word[MAX_CMD_SIZE] = "";
+		string word;
 		scanf("%s", word);
 		fprintf(stderr, "Scanf has read: %s\n", word);//Waaagh!
 		getch();
-		if (strcmp("exit", word) == 0)
+		if ("exit" == word)
 		{
 			return false;
 		}
-		if (Commands(word))
+		word = Commands(word);
+		if (word != "0")
 		{
-			if (doNothing() != SUCCESS)
-			{
-				printf("You can't even do nothing. Go away\n");
-			}
+			head_ = (head_) ? head_->push(word) : new List(word);
 		}
 		else
 		{
@@ -110,9 +130,10 @@ bool Assembler()
 			getch();
 		}
 	}
+	head_->print();
 }
 
-bool IsItNumber(char* word)
+bool IsItNumber(string word)
 {
 	size_t i = 0;
 	while (word[i] != '\0')
@@ -123,21 +144,34 @@ bool IsItNumber(char* word)
 	return true;
 }
 
-bool Commands(char* word)
+string ASM::Commands(string word)
 {
-	CHECK_CMD("hmd", printf("%d ", HMD));
-	CHECK_CMD("pop", printf("%d ", POP));
-	CHECK_CMD("add", printf("%d ", ADD));
-	CHECK_CMD("sin", printf("%d ", SIN));
-	CHECK_CMD("cos", printf("%d ", COS));
-	CHECK_CMD("sqrt", printf("%d ", SQRT));
-	CHECK_CMD("sum", printf("%d ", SUM));
-	CHECK_CMD("sub", printf("%d ", SUB));
-	if (strcmp("push", word) == 0)
+	CHECK_CMD("sin", SIN);
+	CHECK_CMD("cos", COS);
+	CHECK_CMD("hmd", HMD);
+	CHECK_CMD("add", ADD);
+	CHECK_CMD("pop", POP);
+	CHECK_CMD("div", DIV);
+	CHECK_CMD("sqrt", SQRT);
+	CHECK_CMD("sum", SUM);
+	CHECK_CMD("sub", SUB);
+	if (word == "push")
 	{
-		if (Pusher())
+		word = Pusher();
+		if (word != "0")
 		{
-			return true;
+			num++;
+			return word;
+		}
+		else return false;
+	}
+	if ((word == "ja") || (word == "jb")) //etc
+	{
+		word = (Jumper(word, head_, num));
+		if (word != "0")
+		{
+			num++;
+			return word;
 		}
 		else return false;
 	}
@@ -147,23 +181,28 @@ bool Commands(char* word)
 	}
 }
 
-bool Pusher()
+int doNothing() //The most optimistic function ever
 {
-	char this_word[MAX_CMD_SIZE] = "";
+	return SUCCESS;
+}
+
+string ASM::Pusher()
+{
+	string this_word;
 	scanf("%s", this_word);
 
 	if (IsItNumber(this_word))
 	{
 		fprintf(stderr, "Scanf has read: %s\n", this_word);
 		getch();
-		printf("%d %d %s ", PUSH, N, this_word);
-		return true;
+		return(this_word = (getStrFromNumber(PUSH) + " " + this_word + " "));
 	}
-	if (CommandsCPU(this_word))
+	this_word = CommandsCPU(this_word);
+	if (this_word != "0")
 	{
 		fprintf(stderr, "Scanf has read: %s\n", this_word);
 		getch();
-		return true;
+		return this_word;
 	}
 	else
 	{
@@ -171,15 +210,55 @@ bool Pusher()
 	}
 }
 
-bool CommandsCPU(char* word)
+string CommandsCPU(string word)
 {
-	CHECK_CMD("cx", printf("%d %d %d ", PUSH, L, CX));
-	CHECK_CMD("ax", printf("%d %d %d ", PUSH, L, AX));
-	CHECK_CMD("dx", printf("%d %d %d ", PUSH, L, DX));
-	CHECK_CMD("bx", printf("%d %d %d ", PUSH, L, BX));
+	CHECK_CMD("cx", PUSH_CX)
+	CHECK_CMD("ax", PUSH_AX)
+	CHECK_CMD("dx", PUSH_DX)
+	CHECK_CMD("bx", PUSH_BX)
+	return false;
 }
 
-int  doNothing()
+string ASM::Jumper(string word, List* list, size_t num)
 {
-	return SUCCESS;
+	COMMANDS_TO_JMP("ja", JA)
+
+	return false;
+}
+
+string getStrFromNumber(int num)
+{
+	string result;
+
+	while (num > 0)
+	{
+		result.push_back('0' + (num % 10));
+		num /= 10;
+	}
+
+	std::reverse(result.begin(), result.end());
+	return result;
+}
+
+bool ASM::Marker(List* list, size_t num)
+{
+	string this_word;
+	scanf("%s", this_word);
+
+	if (this_word[0] == ':')
+	{
+		this_word.erase(this_word.begin());
+		data_.push_begin(this_word, list);
+		return true;
+	}
+	if (this_word.back() == ':')
+	{
+		this_word.pop_back();
+		data_.push_end(this_word, num);
+		return true;
+	}
+	else
+	{
+		fprintf(stderr, "It's not a command. Start again\n", this_word);
+	}
 }
