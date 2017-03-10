@@ -23,6 +23,8 @@ public:
 	bool push_end(string word, size_t i);
 	size_t numbers(size_t i);
 	List* lists(size_t i);
+
+	size_t size() { return name_.size(); }
 };
 
 

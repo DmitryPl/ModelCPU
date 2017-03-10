@@ -1,10 +1,12 @@
 #pragma once
 
-#include <cstdio>
+#include "stdio.h"
 #include "conio.h"
-#include <cstdlib>
-#include <cassert>
-#include <cstring>
+#include "stdlib.h"
+#include "assert.h"
+#include "string.h"
+#include "string"
+#include <iostream>
 #include "CPU.h"
 #include "ASM.h"
 
@@ -14,7 +16,7 @@ int main()
 	const char* a = Assembler.Dialog();
 	if (a)
 	{
-		fprintf(stderr, "Press the button.\n", "w");
+		fprintf(stderr, "Press the button.\n");
 		getch();
 	}
 }

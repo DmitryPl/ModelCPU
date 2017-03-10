@@ -6,6 +6,7 @@
 #include "assert.h"
 #include "string.h"
 #include "string"
+#include <iostream>
 #include "List.h"
 #include "Data.h"
 #include "Enum.h"
@@ -16,9 +17,6 @@ const int MAX_PATH_SIZE = 128;
 const int SUCCESS = 100500;
 
 size_t num;
-
-#define CHECK_CMD(STR, CONST) if(STR == word) { (word = getStrFromNumber(CONST) + " "); num++; return word; } 
-#define COMMANDS_TO_JMP(STR, CONST) if(STR == word) { word = getStrFromNumber(CONST) + " "; num++; Marker(list, num); return word;}
 
 using std::string;
 
@@ -40,8 +38,8 @@ public:
 	const char* Dialog();
 	const char* Files();
 	string Pusher();
-	string Jumper(string word, List* List, size_t num);
-	bool Marker(List* List, size_t num);
+	string Jumper(string word, List* List);
+	bool Marker(string word, List* List);
 };
 
 bool IsItNumber(string word);
@@ -60,6 +58,9 @@ const char* ASM::Dialog()
 	{
 		b = Files();
 		Assembler();
+		head_->print();
+		fprintf(stderr, "%d", num, "\n");
+		getch();
 		return b;
 	}
 	else if (strcmp("in", request) == 0)
@@ -78,6 +79,10 @@ const char* ASM::Dialog()
 			}
 			else
 			{
+				head_->print();
+				fprintf(stderr, "%d", num);
+				fprintf(stderr, "\n");
+				getch();
 				return false;
 			}
 		}
@@ -90,7 +95,7 @@ const char* ASM::Dialog()
 	}
 }
 
-const char* Files()
+const char* ASM::Files()
 {
 	char input[MAX_PATH_SIZE] = "";
 	char output[MAX_PATH_SIZE] = "";
@@ -112,10 +117,10 @@ bool ASM::Assembler()
 	while (!feof(stdin))
 	{
 		string word;
-		scanf("%s", word);
-		fprintf(stderr, "Scanf has read: %s\n", word);//Waaagh!
-		getch();
-		if ("exit" == word)
+		std::cin >> word;
+		fprintf(stderr, "Cin \"Assembler\" has read: %s\n", word.c_str());
+
+		if (word == "exit")
 		{
 			return false;
 		}
@@ -126,11 +131,15 @@ bool ASM::Assembler()
 		}
 		else
 		{
-			fprintf(stderr, "It's not a command. Start again\nYou can press exit or ignore this problem\n", word);
-			getch();
+			fprintf(stderr, "It's not a command. Start again\nYou can press exit or ignore this problem(if you are using the console)\n", word.c_str());
 		}
 	}
-	head_->print();
+	for (size_t i = 0; i < data_.size(); i++)
+	{
+		List* tmp = data_.lists(i);
+		tmp->write(getStrFromNumber(data_.numbers(i)));
+	}
+	return false;
 }
 
 bool IsItNumber(string word)
@@ -146,15 +155,15 @@ bool IsItNumber(string word)
 
 string ASM::Commands(string word)
 {
-	CHECK_CMD("sin", SIN);
-	CHECK_CMD("cos", COS);
-	CHECK_CMD("hmd", HMD);
-	CHECK_CMD("add", ADD);
-	CHECK_CMD("pop", POP);
-	CHECK_CMD("div", DIV);
-	CHECK_CMD("sqrt", SQRT);
-	CHECK_CMD("sum", SUM);
-	CHECK_CMD("sub", SUB);
+	CHECK_CMD("sin", SIN)
+	CHECK_CMD("cos", COS)
+	CHECK_CMD("hmd", HMD)
+	CHECK_CMD("add", ADD)
+	CHECK_CMD("pop", POP)
+	CHECK_CMD("div", DIV)
+	CHECK_CMD("sqrt", SQRT)
+	CHECK_CMD("sum", SUM)
+	CHECK_CMD("sub", SUB)
 	if (word == "push")
 	{
 		word = Pusher();
@@ -163,21 +172,21 @@ string ASM::Commands(string word)
 			num++;
 			return word;
 		}
-		else return false;
+		else return "0";
 	}
-	if ((word == "ja") || (word == "jb")) //etc
+	if ((word == "ja") || (word == "jb") || (word == "jmp")) //etc
 	{
-		word = (Jumper(word, head_, num));
+		word = (Jumper(word, head_));
 		if (word != "0")
 		{
 			num++;
 			return word;
 		}
-		else return false;
+		else return "0";
 	}
 	else
 	{
-		return false;
+		return "0";
 	}
 }
 
@@ -189,24 +198,22 @@ int doNothing() //The most optimistic function ever
 string ASM::Pusher()
 {
 	string this_word;
-	scanf("%s", this_word);
+	std::cin >> this_word;
+	fprintf(stderr, "Cin \"Pusher\" has read: %s\n", this_word.c_str());
 
 	if (IsItNumber(this_word))
 	{
-		fprintf(stderr, "Scanf has read: %s\n", this_word);
-		getch();
-		return(this_word = (getStrFromNumber(PUSH) + " " + this_word + " "));
+		return(this_word = (getStrFromNumber(PUSH) + " " + this_word));
 	}
 	this_word = CommandsCPU(this_word);
 	if (this_word != "0")
 	{
-		fprintf(stderr, "Scanf has read: %s\n", this_word);
-		getch();
 		return this_word;
 	}
 	else
 	{
-		fprintf(stderr, "It's not a command. Start again\n", this_word);
+		fprintf(stderr, "But,...\n");
+		return "0";
 	}
 }
 
@@ -216,20 +223,20 @@ string CommandsCPU(string word)
 	CHECK_CMD("ax", PUSH_AX)
 	CHECK_CMD("dx", PUSH_DX)
 	CHECK_CMD("bx", PUSH_BX)
-	return false;
+	return "0";
 }
 
-string ASM::Jumper(string word, List* list, size_t num)
+string ASM::Jumper(string word, List* list)
 {
 	COMMANDS_TO_JMP("ja", JA)
-
-	return false;
+	COMMANDS_TO_JMP("jp", JP)
+	COMMANDS_TO_JMP("jmp", JMP)
+	return "0";
 }
 
 string getStrFromNumber(int num)
 {
 	string result;
-
 	while (num > 0)
 	{
 		result.push_back('0' + (num % 10));
@@ -240,25 +247,36 @@ string getStrFromNumber(int num)
 	return result;
 }
 
-bool ASM::Marker(List* list, size_t num)
+bool ASM::Marker(string word, List* list)
 {
 	string this_word;
-	scanf("%s", this_word);
+	std::cin >> this_word;
 
-	if (this_word[0] == ':')
+	if (word == "jmp")
 	{
-		this_word.erase(this_word.begin());
-		data_.push_begin(this_word, list);
-		return true;
+		fprintf(stderr, "Cin \"Marker - jmp\" has read: %s\n", this_word.c_str());
+		if (this_word.back() == ':')
+		{
+			this_word.pop_back();
+			data_.push_end(this_word, num);
+			return true;
+		}
+		else return false;
 	}
-	if (this_word.back() == ':')
+	if ((word == "ja") || (word == "jp"))
 	{
-		this_word.pop_back();
-		data_.push_end(this_word, num);
-		return true;
+		fprintf(stderr, "Cin \"Marker - jx\" has read: %s\n", this_word.c_str());
+		if (this_word[0] == ':')
+		{
+			this_word.erase(this_word.begin());
+			data_.push_begin(this_word, list);
+			return true;
+		}
+		else return false;
 	}
 	else
 	{
 		fprintf(stderr, "It's not a command. Start again\n", this_word);
+		return false;
 	}
 }

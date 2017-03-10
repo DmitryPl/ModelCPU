@@ -6,6 +6,7 @@
 #include "assert.h"
 #include "string.h"
 #include "string"
+#include <iostream>
 #include "Stack.h"
 #include "Enum.h"
 

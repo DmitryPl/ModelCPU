@@ -6,6 +6,8 @@
 #include "assert.h"
 #include "string.h"
 #include "string"
+#include <iostream>
+#include "Enum.h"
 
 using std::string;
 
