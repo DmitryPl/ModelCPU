@@ -1,12 +1,23 @@
-push 50 
-add
-push pp
-pp
-push pp
-push pp
-pp push
-pp
-push ax
-pop
-add
-ax
+ded
+ded
+label :uuu
+label :jjj
+ja jjj:
+jmp hhh:
+label :hhh
+ja uuu:
+ded
+ded
+
+exit
+
+3 <-> 8
+4 <-> 5
+7 <-> 6
+
+8
+5
+4
+7
+6
+3

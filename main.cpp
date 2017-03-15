@@ -16,7 +16,7 @@ int main()
 	const char* a = Assembler.Dialog();
 	if (a)
 	{
-		fprintf(stderr, "Press the button.\n");
+		fprintf(stderr, "\nPress the button.\n");
 		getch();
 	}
 }
