@@ -9,14 +9,26 @@
 #include <iostream>
 #include "CPU.h"
 #include "ASM.h"
-
-int main()
+		
+void main()
 {
 	ASM Assembler;
-	const char* a = Assembler.Dialog();
+	CPU Ñommunism;
+	const char* a = "output.txt";//Assembler.Dialog();
 	if (a)
 	{
 		fprintf(stderr, "\nPress the button.\n");
 		getch();
+		fprintf(stderr, "\nSTARTING CPU\n");
+		if (Ñommunism.CPU_(a))
+		{
+			fprintf(stderr, "\nEND CPU\n");
+			getch();
+		}
+		else
+		{
+		fprintf(stderr, "\nERROR CPU\n");
+		}
 	}
+	getch();
 }

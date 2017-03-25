@@ -130,28 +130,27 @@ void Stack::swap(Stack* that)
 
 bool Stack::ok() const
 {
-	int i = 0;
 	if (data_ < 0)
 	{
 		printf("Memory error\n");
-		i++;
+		return false;
 	}
 	if (size_ > capacity_)
 	{
 		printf("Size >= Capacity\n");
-		i++;
+		return false;
 	}
 	if (capacity_ < 0)
 	{
 		printf("Capacitry error\n");
-		i++;
+		return false;
 	}
 	if (size_ < 0)
 	{
 		printf("Size error\n");
-		i++;
+		return false;
 	}
-	return (!i);
+	return true;
 }
 
 void Stack::print() const
