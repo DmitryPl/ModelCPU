@@ -134,6 +134,8 @@ bool CPU::Reader()
 
 void CPU::Excerpt()
 {
+	printf("\nSTART...\n");
+	getch();
 	num = 0;
 	int b;
 	while (num < Mrakobesie.size_type())
@@ -193,19 +195,18 @@ void CPU::Arrayer()
 {
 	int zzz;
 	fscanf(file, "%d", &zzz);
-	printf("Arrayer has read: %d \n", zzz);
+	printf("Scanf \"Arrayer\" has read: %d \n", zzz);
 	Mrakobesie.write_numbers(num, zzz);
 }
 
 void CPU::print()
 {
+	printf("***************\n");
 	printf("STACK CPU: ");
 	Stack_CPU.print();
 	printf("\n");
-	printf("STACK Func: ");
-	of_Function.print();
-	printf("\n");
 	printf("AX: %d, BX: %d, CX: %d, DX: %d\n", ax, bx, cx, dx);
+	printf("***************\n");
 }
 
 bool CPU::ADD_F(int)
@@ -325,10 +326,12 @@ bool CPU::HMD_F(int)
 }
 bool CPU::OUT_F(int)
 {
+	printf("***************\n");
 	printf("STACK CPU: ");
 	Stack_CPU.print();
 	printf("\n");
 	printf("AX: %d, BX: %d, CX: %d, DX: %d\n", ax, bx, cx, dx);
+	printf("***************\n");
 	return true;
 }
 bool CPU::PUSH_AX_F(int)
@@ -537,7 +540,7 @@ bool CPU::JA_F(int x)
 			int tmp2 = Stack_CPU.pop();
 			if (tmp1 >= tmp2)
 			{
-				num = x;
+				num = x - 1;
 			}
 			Stack_CPU.push(tmp2);
 			Stack_CPU.push(tmp1);
@@ -567,7 +570,7 @@ bool CPU::JC_F(int x)
 			int tmp2 = Stack_CPU.pop();
 			if (tmp1 == tmp2)
 			{
-				num = x;
+				num = x - 1;
 			}
 			Stack_CPU.push(tmp2);
 			Stack_CPU.push(tmp1);
@@ -597,7 +600,7 @@ bool CPU::JP_F(int x)
 			int tmp2 = Stack_CPU.pop();
 			if (tmp1 <= tmp2)
 			{
-				num = x;
+				num = x - 1;
 			}
 			Stack_CPU.push(tmp2);
 			Stack_CPU.push(tmp1);
@@ -621,7 +624,7 @@ bool CPU::JMP_F(int x)
 {
 	if (x != NAN)
 	{
-		num = x;
+		num = x - 1;
 		return true;
 	}
 	else
@@ -635,7 +638,7 @@ bool CPU::CALLA_F(int x)
 {
 	if (x != NAN)
 	{
-		of_Function.push(num + 1);
+		of_Function.push(num);
 		num = x;
 		return true;
 	}
@@ -650,7 +653,7 @@ bool CPU::CALLC_F(int x)
 {
 	if (x != NAN)
 	{
-		of_Function.push(num + 1);
+		of_Function.push(num);
 		num = x;
 		return true;
 	}
@@ -665,7 +668,7 @@ bool CPU::CALLP_F(int x)
 {
 	if (x != NAN)
 	{
-		of_Function.push(num + 1);
+		of_Function.push(num);
 		num = x;
 		return true;
 	}

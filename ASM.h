@@ -476,7 +476,6 @@ bool ASM::Ending()
 	}
 	for (size_t i = 0; i < Func_.size(); i++)
 	{
-		fprintf(stderr, "\nfor!!!\n");
 		List* tmp1 = Func_.lists_jx(i);
 		if (tmp1)
 		{

@@ -1,10 +1,20 @@
+jmp main:
+
+func :func
 ded
 push 50
 push 70
+ret
+
+label :main
+ded
+ded
+calla func:
+out
+hmd
 
 exit
 exit
-
 Commands:
 div - /			pop ax - stack->ax				dec       - dx--			 in ax - write ax from CON
 sub - -			pop bx - stack->bx				inc       - dx++			 in bx - write bx from CON
