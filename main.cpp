@@ -12,23 +12,25 @@
 		
 void main()
 {
-	ASM Assembler;
+	ASM Socialism;
 	CPU Ñommunism;
-	const char* a = Assembler.Dialog();
+	const char* a = Socialism.Dialog();
 	if (a)
 	{
-		fprintf(stderr, "\nPress the button.\n");
 		getch();
-		fprintf(stderr, "\nSTARTING CPU\n");
 		if (Ñommunism.CPU_(a))
 		{
-			fprintf(stderr, "\nEND CPU\n");
-			getch();
+			doNothing();
 		}
 		else
 		{
 		fprintf(stderr, "\nERROR CPU\n");
 		}
 	}
+	else
+	{
+		fprintf(stderr, "\nERROR ASM\n");
+	}
+	fprintf(stderr, "\nPress the button.\n");
 	getch();
 }

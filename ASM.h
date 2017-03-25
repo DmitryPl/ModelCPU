@@ -37,6 +37,7 @@ private:
 	bool Ending();
 	const char* Files();
 	bool Assembler();
+	void Help();
 
 public:
 	const char* Dialog();
@@ -51,6 +52,7 @@ public:
 
 const char* ASM::Dialog()
 {
+	fprintf(stderr, "\nSTARTING ASM\n\n");
 	char a[MAX_CMD_SIZE] = "output.txt";
 	const char* b;
 	printf("If you want to work with files enter \"file\". If you want to enter commands from console enter \"in\".\n");
@@ -64,6 +66,7 @@ const char* ASM::Dialog()
 		fprintf(stderr, "\nNumber of commands: %d", num);
 		fprintf(stderr, "\n...\n");
 		printf("%d", HMD);
+		fprintf(stderr, "\nENDING ASM\n");
 		return b;
 	}
 	else if (strcmp("in", request) == 0)
@@ -88,6 +91,7 @@ const char* ASM::Dialog()
 				return false;
 			}
 		}
+		fprintf(stderr, "\nENDING ASM\n");
 		return a;
 	}
 	else
@@ -114,6 +118,12 @@ const char* ASM::Files()
 	return output_path;
 }
 
+void ASM::Help()
+{
+	fprintf(stderr, HELP);
+	fprintf(stderr, "\n");
+}
+
 bool ASM::Assembler()
 {
 	while (!feof(stdin))
@@ -131,32 +141,39 @@ bool ASM::Assembler()
 			else
 				assert("ASM - Ending - False Label", false);
 		}
-		head_ = (head_) ? head_->push() : new List();// start of kostil'
-		word = Commands(word);
-		if (word != "0")
+		if (word == "help")
 		{
-			head_->pusher(word);
-			/*if (head_)
-			{
-			head_ = head_->push(word);
-			assert(head_);
-			std::cerr << "New head is " << head_ << "[" << word << "] and next is " << head_->get_next() << "[" << head_->get_next()->get_word() << "]\n";
-			std::cerr << "SIZE: " << head_->get_size() << "\n";
-			getch();
-			}
-			else
-			{
-			head_ = new List(word);
-			assert(head_);
-			std::cerr << "New head is " << head_ << "[" << word << "] and next is NULL\n";
-			std::cerr << "SIZE: " << head_->get_size() << "\n";
-			getch();
-			}*/
+			Help();
 		}
 		else
 		{
-			getch();// end of kostil'!!! don't delete List. can be problem!!!
-			fprintf(stderr, "It's not a command. Start again\nYou can press exit or ignore this problem(if you are using the console)\n", word.c_str());
+			head_ = (head_) ? head_->push() : new List();
+			word = Commands(word);
+			if (word != "0")
+			{
+				head_->pusher(word);
+				/*if (head_)
+				{
+				head_ = head_->push(word);
+				assert(head_);
+				std::cerr << "New head is " << head_ << "[" << word << "] and next is " << head_->get_next() << "[" << head_->get_next()->get_word() << "]\n";
+				std::cerr << "SIZE: " << head_->get_size() << "\n";
+				getch();
+				}
+				else
+				{
+				head_ = new List(word);
+				assert(head_);
+				std::cerr << "New head is " << head_ << "[" << word << "] and next is NULL\n";
+				std::cerr << "SIZE: " << head_->get_size() << "\n";
+				getch();
+				}*/
+			}
+			else
+			{
+				getch();
+				fprintf(stderr, "It's not a command. Start again\nYou can press exit or ignore this problem(if you are using the console)\n", word.c_str());
+			}
 		}
 	}
 	if (Ending())
@@ -445,7 +462,7 @@ bool ASM::Ending()
 {
 	for (size_t i = 0; i < data_.size(); i++)
 	{
-		fprintf(stderr, "\nfor!!!\n");
+		fprintf(stderr, "\n");
 		List* tmp1 = data_.lists_jx(i);
 		if (tmp1)
 		{

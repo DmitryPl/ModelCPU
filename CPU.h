@@ -79,6 +79,7 @@ public:
 
 bool CPU::CPU_(const char* output)
 {
+	fprintf(stderr, "\nSTARTING CPU\n");
 	if (Files(output))
 	{
 		doNothing();
@@ -86,6 +87,7 @@ bool CPU::CPU_(const char* output)
 	if (Reader())
 	{
 		fclose(file);
+		fprintf(stderr, "\nEND CPU\n");
 		return true;
 	}
 	else return false;
@@ -122,7 +124,7 @@ bool CPU::Reader()
 		}
 		else
 		{
-			printf("It's not a command! %s\n", word);
+			printf("It's not a command! %d\n", word);
 			return false;
 		}
 	}
@@ -139,7 +141,6 @@ void CPU::Excerpt()
 		b = Mrakobesie.return_numbers(num);
 		(this->*Mrakobesie.do_(num))(b);
 		num++;
-		print();
 	}
 }
 
@@ -169,6 +170,10 @@ MyFuncType* CPU::Commands(int word)
 	CHECK_CPU(word, POP_DX, POP_DX_F);
 	CHECK_CPU(word, POP_CX, POP_CX_F);
 	CHECK_CPU(word, POP_BX, POP_BX_F);
+	CHECK_CPU(word, IN_AX, IN_AX_F);
+	CHECK_CPU(word, IN_DX, IN_DX_F);
+	CHECK_CPU(word, IN_CX, IN_CX_F);
+	CHECK_CPU(word, IN_BX, IN_BX_F);
 	CHECK_CPU(word, LABEL, LABEL_F);
 	CHECK_CPU(word, FUNC, FUNC_F);
 	CHECK_CPU(word, RET, RET_F);
@@ -194,26 +199,29 @@ void CPU::Arrayer()
 
 void CPU::print()
 {
-	printf("STACK CPU\n");
+	printf("STACK CPU: ");
 	Stack_CPU.print();
-	printf("STACK Func\n");
+	printf("\n");
+	printf("STACK Func: ");
 	of_Function.print();
-	printf("AX: %d, BX: %d, CX: %d, DX: %d, NUM: %d\n", ax, bx, cx, dx, num);
-	getch();
+	printf("\n");
+	printf("AX: %d, BX: %d, CX: %d, DX: %d\n", ax, bx, cx, dx);
 }
 
 bool CPU::ADD_F(int)
 {
-	if (Stack_CPU.size() > 1)
+	if (Stack_CPU.size() > 2)
 	{
 		int tmp1 = Stack_CPU.pop();
 		int tmp2 = Stack_CPU.pop();
 		Stack_CPU.push(tmp1 + tmp2);
+		print();
 		return true;
 	}
 	else
 	{
 		printf("Error - Stack has't not got 2 numbers - DIV\n");
+		print();
 		return false;
 	}
 }
@@ -230,60 +238,68 @@ bool CPU::COS_F(int)
 bool CPU::DEC_F(int)
 {
 	dx--;
+	print();
 	return true;
 }
 bool CPU::INC_F(int)
 {
 	dx++;
+	print();
 	return true;
 }
 bool CPU::DED_F(int)
 {
-	printf("Do you respect the SPACE?\n");
+	printf("\nDo you respect the SPACE?\n\n");
 	return true;
 }
 bool CPU::DIV_F(int)
 {
-	if (Stack_CPU.size() > 1)
+	if (Stack_CPU.size() > 2)
 	{
 		int tmp1 = Stack_CPU.pop();
 		int tmp2 = Stack_CPU.pop();
 		Stack_CPU.push(tmp1 / tmp2);
+		print();
 		return true;
 	}
 	else
 	{
 		printf("Error - Stack has't not got 2 numbers - DIV\n");
+		print();
 		return false;
 	}
 }
 bool CPU::SUB_F(int)
 {
-	if (Stack_CPU.size() > 1)
+	if (Stack_CPU.size() > 2)
 	{
 		int tmp1 = Stack_CPU.pop();
 		int tmp2 = Stack_CPU.pop();
 		Stack_CPU.push(tmp1 - tmp2);
+		print();
 		return true;
 	}
 	else
 	{
 		printf("Error - Stack has't not got 2 numbers - DIV\n");
+		print();
 		return false;
 	}
 }
 bool CPU::SUM_F(int)
 {
-	if (Stack_CPU.size() > 1)
+	if (Stack_CPU.size() > 2)
 	{
 		int tmp1 = Stack_CPU.pop();
 		int tmp2 = Stack_CPU.pop();
 		Stack_CPU.push(tmp1 * tmp2);
+		print();
 		return true;
 	}
 	else
 	{
 		printf("Error - Stack has't not got 2 numbers - DIV\n");
+		print();
 		return false;
 	}
 }
@@ -292,11 +308,13 @@ bool CPU::SQRT_F(int)
 	if (!Stack_CPU.empty())
 	{
 		Stack_CPU.push(sqrt(Stack_CPU.pop()));
+		print();
 		return true;
 	}
 	else
 	{
-		printf("Error - sqrt\n");
+		printf("Error - sqrt - empty\n");
+		print();
 		return false;
 	}
 }
@@ -307,43 +325,47 @@ bool CPU::HMD_F(int)
 }
 bool CPU::OUT_F(int)
 {
-	printf("STACK CPU\n");
+	printf("STACK CPU: ");
 	Stack_CPU.print();
-	printf("STACK Func\n");
-	of_Function.print();
-	printf("AX: %d, BX: %d, CX: %d, DX: %d, NUM: %d\n", ax, bx, cx, dx, num);
+	printf("\n");
+	printf("AX: %d, BX: %d, CX: %d, DX: %d\n", ax, bx, cx, dx);
 	return true;
 }
 bool CPU::PUSH_AX_F(int)
 {
 	Stack_CPU.push(ax);
+	print();
 	return true;
 }
 bool CPU::PUSH_BX_F(int)
 {
 	Stack_CPU.push(bx);
+	print();
 	return true;
 }
 bool CPU::PUSH_CX_F(int)
 {
 	Stack_CPU.push(cx);
+	print();
 	return true;
 }
 bool CPU::PUSH_DX_F(int)
 {
 	Stack_CPU.push(cx);
+	print();
 	return true;
 }
 bool CPU::IN_AX_F(int)
 {
 	while (true)
 	{
-		printf("IN NUMBER (AX):\n");
+		printf("ENTER NUMBER (AX):\n");
 		string this_word;
 		std::cin >> this_word;
 		if (IsItNumber(this_word))
 		{
 			ax = atoi(this_word.c_str());
+			print();
 			return true;
 		}
 		else
@@ -356,12 +378,13 @@ bool CPU::IN_BX_F(int)
 {
 	while (true)
 	{
-		printf("IN NUMBER (AX):\n");
+		printf("ENTER NUMBER (AX):\n");
 		string this_word;
 		std::cin >> this_word;
 		if (IsItNumber(this_word))
 		{
 			bx = atoi(this_word.c_str());
+			print();
 			return true;
 		}
 		else
@@ -374,12 +397,13 @@ bool CPU::IN_CX_F(int)
 {
 	while (true)
 	{
-		printf("IN NUMBER (AX):\n");
+		printf("ENTER NUMBER (AX):\n");
 		string this_word;
 		std::cin >> this_word;
 		if (IsItNumber(this_word))
 		{
 			cx = atoi(this_word.c_str());
+			print();
 			return true;
 		}
 		else
@@ -392,12 +416,13 @@ bool CPU::IN_DX_F(int)
 {
 	while (true)
 	{
-		printf("IN NUMBER (AX):\n");
+		printf("ENTER NUMBER (AX):\n");
 		string this_word;
 		std::cin >> this_word;
 		if (IsItNumber(this_word))
 		{
 			dx = atoi(this_word.c_str());
+			print();
 			return true;
 		}
 		else
@@ -411,11 +436,13 @@ bool CPU::POP_AX_F(int)
 	if (!Stack_CPU.empty())
 	{
 		ax = Stack_CPU.pop();
+		print();
 		return true;
 	}
 	else
 	{
 		printf("Stack - empty - error!\n");
+		print();
 		return false;
 	}
 }
@@ -424,11 +451,13 @@ bool CPU::POP_BX_F(int)
 	if (!Stack_CPU.empty())
 	{
 		bx = Stack_CPU.pop();
+		print();
 		return true;
 	}
 	else
 	{
 		printf("Stack - empty - error!\n");
+		print();
 		return false;
 	}
 }
@@ -437,11 +466,13 @@ bool CPU::POP_CX_F(int)
 	if (!Stack_CPU.empty())
 	{
 		cx = Stack_CPU.pop();
+		print();
 		return true;
 	}
 	else
 	{
 		printf("Stack - empty - error!\n");
+		print();
 		return false;
 	}
 }
@@ -450,11 +481,13 @@ bool CPU::POP_DX_F(int)
 	if (!Stack_CPU.empty())
 	{
 		dx = Stack_CPU.pop();
+		print();
 		return true;
 	}
 	else
 	{
 		printf("Stack - empty - error!\n");
+		print();
 		return false;
 	}
 }
@@ -475,7 +508,6 @@ bool CPU::RET_F(int)
 	}
 	else
 	{
-		printf("END!\n");
 		num = Mrakobesie.size_type();
 	}
 }
@@ -485,11 +517,13 @@ bool CPU::PUSH_F(int x)
 	if (x != NAN)
 	{
 		Stack_CPU.push(x);
+		print();
 		return true;
 	}
 	else
 	{
 		printf("Error - PUSH_F\n");
+		print();
 		return false;
 	}
 }
@@ -497,19 +531,29 @@ bool CPU::JA_F(int x)
 {
 	if (x != NAN)
 	{
-		int tmp1 = Stack_CPU.pop();
-		int tmp2 = Stack_CPU.pop();
-		if (tmp1 > tmp2)
+		if (Stack_CPU.size() > 2)
 		{
-			num = x;
+			int tmp1 = Stack_CPU.pop();
+			int tmp2 = Stack_CPU.pop();
+			if (tmp1 >= tmp2)
+			{
+				num = x;
+			}
+			Stack_CPU.push(tmp2);
+			Stack_CPU.push(tmp1);
+			return true;
 		}
-		Stack_CPU.push(tmp2);
-		Stack_CPU.push(tmp1);
-		return true;
+		else
+		{
+			printf("Error - JA_F - empty\n");
+			print();
+			return false;
+		}
 	}
 	else
 	{
 		printf("Error - JA_F\n");
+		print();
 		return false;
 	}
 }
@@ -517,19 +561,29 @@ bool CPU::JC_F(int x)
 {
 	if (x != NAN)
 	{
-		int tmp1 = Stack_CPU.pop();
-		int tmp2 = Stack_CPU.pop();
-		if (tmp1 == tmp2)
+		if (Stack_CPU.size() > 2)
 		{
-			num = x;
+			int tmp1 = Stack_CPU.pop();
+			int tmp2 = Stack_CPU.pop();
+			if (tmp1 == tmp2)
+			{
+				num = x;
+			}
+			Stack_CPU.push(tmp2);
+			Stack_CPU.push(tmp1);
+			return true;
 		}
-		Stack_CPU.push(tmp2);
-		Stack_CPU.push(tmp1);
-		return true;
+		else
+		{
+			printf("\nError - JC_F - empty\n");
+			print();
+			return false;
+		}
 	}
 	else
 	{
 		printf("Error - JC_F\n");
+		print();
 		return false;
 	}
 }
@@ -537,18 +591,28 @@ bool CPU::JP_F(int x)
 {
 	if (x != NAN)
 	{
-		int tmp1 = Stack_CPU.pop();
-		int tmp2 = Stack_CPU.pop();
-		if (tmp1 < tmp2)
+		if (Stack_CPU.size() > 2)
 		{
-			num = x;
+			int tmp1 = Stack_CPU.pop();
+			int tmp2 = Stack_CPU.pop();
+			if (tmp1 <= tmp2)
+			{
+				num = x;
+			}
+			Stack_CPU.push(tmp2);
+			Stack_CPU.push(tmp1);
+			return true;
 		}
-		Stack_CPU.push(tmp2);
-		Stack_CPU.push(tmp1);
-		return true;
+		else
+		{
+			print();
+			printf("\nError - JP_F - empty\n");
+			return false;
+		}
 	}
 	else
 	{
+		print();
 		printf("Error - JP_F\n");
 		return false;
 	}
@@ -563,6 +627,7 @@ bool CPU::JMP_F(int x)
 	else
 	{
 		printf("Error - JMP_F\n");
+		print();
 		return false;
 	}
 }
@@ -577,6 +642,7 @@ bool CPU::CALLA_F(int x)
 	else
 	{
 		printf("Error - CALLA_F\n");
+		print();
 		return false;
 	}
 }
@@ -591,6 +657,7 @@ bool CPU::CALLC_F(int x)
 	else
 	{
 		printf("Error - CALLC_F\n");
+		print();
 		return false;
 	}
 }
@@ -605,6 +672,7 @@ bool CPU::CALLP_F(int x)
 	else
 	{
 		printf("Error - CALLP_F\n");
+		print();
 		return false;
 	}
 }

@@ -29,7 +29,25 @@ typedef bool(CPU::*MyFuncType)(int);
 #define COMMANDS_TO_JMP_F(STR, CONST) if(STR == word) { if(Marker_F(word, list)) { word = getStrFromNumber(CONST) ; num++; return word;} else return "0"; }
 #define CHECK_CPU(NUM, CONST, POINTER) if(NUM == CONST) { MyFuncType res = &CPU::POINTER; return &res; }
 #define CHECK_CPU_F(NUM, CONST, POINTER) if(NUM == CONST) { Arrayer(); MyFuncType res = &CPU::POINTER; return &res; }
-
+#define HELP "\nCommands:\n\n\
+div - /             pop ax - stack->ax\n\
+sub - -             pop bx - stack->bx\n\
+sum - *             pop cx - stack->cx\n\
+add - +             pop dx - stack->dx\n\
+ja  - >             sqrt - top of stack->stack\n\
+jc - ==             out - print all\n\
+jp - <=             ded - SPACE\n\
+jmp - jmp           hmd - stop\n\
+label : label       sin - top of stack->CON\n\
+jmp label :         cos - top of stack->CON\n\
+dec - dx--          in ax - write ax from CON\n\
+inc - dx++          in bx - write bx from CON\n\
+push(n) - to stack  in cx - write cx from CON\n\
+push dx - to dx     in dx - write dx from CON\n\
+push ax - to ax     call(a - p) - call func\n\
+push cx - to cx     func : func - in func\n\
+push dx - to dx     ret - out func\n\
+exit - stop writting ASM, works and(in), and(file)"
 bool IsItNumber(string word)
 {
 	size_t i = 0;

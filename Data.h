@@ -33,8 +33,6 @@ public:
 
 bool data::push_jx(string word, List* list, size_t num)
 {
-	fprintf(stderr, "push_jx\n");
-	fprintf(stderr, "%s \n", word.c_str());
 	int a = 0;
 	if (!list && !this)
 	{
@@ -43,7 +41,6 @@ bool data::push_jx(string word, List* list, size_t num)
 	}
 	if (name_label.size() != 0)
 	{
-		//auto result = find(name_label.begin(), name_label.end(), word);
 		for (size_t i = 0; i < name_label.size(); i++)
 		{
 			if (word == name_label[i])
@@ -74,8 +71,6 @@ bool data::push_jx(string word, List* list, size_t num)
 
 bool data::push_label(string word, size_t num)
 {
-	fprintf(stderr, "push_label\n");
-	fprintf(stderr, "%s \n", word.c_str());
 	int a = 0;
 	if (!this)
 	{
@@ -122,7 +117,6 @@ size_t data::numbers_jx(size_t i)
 {
 	if (i < name_jx.size())
 	{
-		fprintf(stderr, "numbers_jx: %d\n", number_jx[i]);
 		return number_jx[i];
 	}
 	else

@@ -1,23 +1,18 @@
 ded
-ded
-label :uuu
-label :jjj
-ja jjj:
-jmp hhh:
-label :hhh
-ja uuu:
-ded
-ded
+push 50
+push 70
 
 exit
+exit
 
-3 <-> 8
-4 <-> 5
-7 <-> 6
-
-8
-5
-4
-7
-6
-3
+Commands:
+div - /			pop ax - stack->ax				dec       - dx--			 in ax - write ax from CON
+sub - -			pop bx - stack->bx				inc       - dx++			 in bx - write bx from CON
+sum - *			pop cx - stack->cx				push (n)  - push to stack	 in cx - write cx from CON
+add - +			pop dx - stack->dx				push ax   - to ax			 in dx - write dx from CON
+ja  - >			sqrt   - top of stack->stack	push dx   - to dx
+jc  - ==		out    - print all				push cx   - to cx			 exit  - stop writting ASM, works and "in", and "file" 
+jp  - <=		ded    - SPACE  				push dx   - to dx
+jmp - jmp		hmd    - stop					call(a-p) - call func
+label :label	sin    - top of stack->CON		func :func- in func
+jmp label:		cos    - top of stack->CON		ret       - out func
