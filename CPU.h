@@ -112,7 +112,6 @@ bool CPU::Reader()
 	{
 		int word = 0;
 		MyFuncType* i = nullptr;
-		getch();
 		fscanf(file, "%d", &word);
 		printf("Scanf \"Reader\" has read: %d\n", word);
 		i = Commands(word);
@@ -138,8 +137,7 @@ void CPU::Excerpt()
 	while (num < Mrakobesie.size_type())
 	{
 		b = Mrakobesie.return_numbers(num);
-		CPU* FUN = {};
-		(FUN->*Mrakobesie.do_(num))(b);
+		(this->*Mrakobesie.do_(num))(b);
 		num++;
 		print();
 	}
@@ -313,7 +311,7 @@ bool CPU::OUT_F(int)
 	Stack_CPU.print();
 	printf("STACK Func\n");
 	of_Function.print();
-	printf("AX: %d, BX: %d, CX: %d, DX: %d, NUM: %d", ax, bx, cx, dx, num);
+	printf("AX: %d, BX: %d, CX: %d, DX: %d, NUM: %d\n", ax, bx, cx, dx, num);
 	return true;
 }
 bool CPU::PUSH_AX_F(int)
@@ -338,93 +336,73 @@ bool CPU::PUSH_DX_F(int)
 }
 bool CPU::IN_AX_F(int)
 {
-	print();
 	while (true)
 	{
-		if (freopen("CON", "r", stderr))
+		printf("IN NUMBER (AX):\n");
+		string this_word;
+		std::cin >> this_word;
+		if (IsItNumber(this_word))
 		{
-			printf("IN NUMBER (AX):\n");
-			string this_word;
-			std::cin >> this_word;
-			if (IsItNumber(this_word))
-			{
-				ax = atoi(this_word.c_str());
-				freopen("CON", "w", stderr);
-				return true;
-			}
+			ax = atoi(this_word.c_str());
+			return true;
 		}
 		else
 		{
-			printf("It's not a number, tyr again.\n");
+			printf("It's not a number, try again.\n");
 		}
 	}
 }
 bool CPU::IN_BX_F(int)
 {
-	print();
 	while (true)
 	{
-		if (freopen("CON", "r", stderr))
+		printf("IN NUMBER (AX):\n");
+		string this_word;
+		std::cin >> this_word;
+		if (IsItNumber(this_word))
 		{
-			printf("IN NUMBER (BX):\n");
-			string this_word;
-			std::cin >> this_word;
-			if (IsItNumber(this_word))
-			{
-				bx = atoi(this_word.c_str());
-				freopen("CON", "w", stderr);
-				return true;
-			}
+			bx = atoi(this_word.c_str());
+			return true;
 		}
 		else
 		{
-			printf("It's not a number, tyr again.\n");
+			printf("It's not a number, try again.\n");
 		}
 	}
 }
 bool CPU::IN_CX_F(int)
 {
-	print();
 	while (true)
 	{
-		if (freopen("CON", "r", stderr))
+		printf("IN NUMBER (AX):\n");
+		string this_word;
+		std::cin >> this_word;
+		if (IsItNumber(this_word))
 		{
-			printf("IN NUMBER (CX):\n");
-			string this_word;
-			std::cin >> this_word;
-			if (IsItNumber(this_word))
-			{
-				cx = atoi(this_word.c_str());
-				freopen("CON", "w", stderr);
-				return true;
-			}
+			cx = atoi(this_word.c_str());
+			return true;
 		}
 		else
 		{
-			printf("It's not a number, tyr again.\n");
+			printf("It's not a number, try again.\n");
 		}
 	}
 }
 bool CPU::IN_DX_F(int)
 {
-	print();
 	while (true)
 	{
-		if (freopen("CON", "r", stderr))
+		printf("IN NUMBER (AX):\n");
+		string this_word;
+		std::cin >> this_word;
+		if (IsItNumber(this_word))
 		{
-			printf("IN NUMBER (DX):\n");
-			string this_word;
-			std::cin >> this_word;
-			if (IsItNumber(this_word))
-			{
-				dx = atoi(this_word.c_str());
-				freopen("CON", "w", stderr);
-				return true;
-			}
+			dx = atoi(this_word.c_str());
+			return true;
 		}
 		else
 		{
-			printf("It's not a number, tyr again.\n");
+			printf("It's not a number, try again.\n");
 		}
 	}
 }

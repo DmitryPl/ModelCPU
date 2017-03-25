@@ -14,7 +14,7 @@ void main()
 {
 	ASM Assembler;
 	CPU Ñommunism;
-	const char* a = "output.txt";//Assembler.Dialog();
+	const char* a = Assembler.Dialog();
 	if (a)
 	{
 		fprintf(stderr, "\nPress the button.\n");

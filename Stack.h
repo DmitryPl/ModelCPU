@@ -130,6 +130,7 @@ void Stack::swap(Stack* that)
 
 bool Stack::ok() const
 {
+
 	if (data_ < 0)
 	{
 		printf("Memory error\n");

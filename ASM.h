@@ -63,6 +63,7 @@ const char* ASM::Dialog()
 		head_->print();
 		fprintf(stderr, "\nNumber of commands: %d", num);
 		fprintf(stderr, "\n...\n");
+		printf("%d", HMD);
 		return b;
 	}
 	else if (strcmp("in", request) == 0)
