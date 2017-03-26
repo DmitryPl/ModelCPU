@@ -24,20 +24,16 @@ private:
 
 	string Commands(string word);
 	bool Push(List* List);
-	string Pusher();
-	string Poper();
-	string Iner();
-	string Jumper(string word, List* List);
-	string Funcer(string word, List* List);
-	bool Marker(string word, List* List);
-	bool Marker_F(string word, List* List);
-	string CommandsCPUpush(string word);
-	string CommandsCPUpop(string word);
-	string CommandsCPUin(string word);
+	string Complicate_F(const int T1, const int T2, const int T3, const int T4, const int T5);
+	string to_Marker(string word, List* list);
+	bool Marker(string word, List* List, data* what);
 	bool Ending();
 	const char* Files();
 	bool Assembler();
 	void Help();
+	void End();
+
+	string CommandsCPU(string word, const int T1, const int T2, const int T3, const int T4);
 
 public:
 	const char* Dialog();
@@ -53,25 +49,27 @@ public:
 const char* ASM::Dialog()
 {
 	fprintf(stderr, "\nSTARTING ASM\n\n");
-	char a[MAX_CMD_SIZE] = "output.txt";
-	const char* b;
+	const char* b = "output.txt";
 	printf("If you want to work with files enter \"file\". If you want to enter commands from console enter \"in\".\n");
 	char request[MAX_CMD_SIZE] = "";
 	scanf("%s", request);
 	if (strcmp("file", request) == 0)
 	{
 		b = Files();
-		Assembler();
-		head_->print();
-		fprintf(stderr, "\nNumber of commands: %d", num);
-		fprintf(stderr, "\n...\n");
-		printf("%d", HMD);
-		fprintf(stderr, "\nENDING ASM\n");
-		return b;
+		if (b)
+		{
+			Assembler();
+			End();
+			return b;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	else if (strcmp("in", request) == 0)
 	{
-		if (!freopen("output.txt", "w", stdout))
+		if (!freopen("output.txt", "w+", stdout))
 		{
 			printf("Error - ASM - In\n");
 			return false;
@@ -85,14 +83,10 @@ const char* ASM::Dialog()
 			}
 			else
 			{
-				head_->print();
-				fprintf(stderr, "Number of commands: %d", num);
-				fprintf(stderr, "\n...\n");
-				return false;
+				End();
+				return b;
 			}
 		}
-		fprintf(stderr, "\nENDING ASM\n");
-		return a;
 	}
 	else
 	{
@@ -114,6 +108,7 @@ const char* ASM::Files()
 	if (!freopen(input_path, "r", stdin) || !freopen(output_path, "w", stdout))
 	{
 		printf("Error opening files\n");
+		return false;
 	}
 	return output_path;
 }
@@ -186,122 +181,53 @@ bool ASM::Assembler()
 
 string ASM::Commands(string word)
 {
-	CHECK_CMD("sin", SIN)
-	CHECK_CMD("cos", COS)
-	CHECK_CMD("hmd", HMD)
-	CHECK_CMD("add", ADD)
-	CHECK_CMD("div", DIV)
-	CHECK_CMD("sqrt", SQRT)
-	CHECK_CMD("sum", SUM)
-	CHECK_CMD("sub", SUB)
-	CHECK_CMD("out", OUT)
-	CHECK_CMD("dec", DEC)
-	CHECK_CMD("ded", DED)
-	CHECK_CMD("inc", INC)
-	CHECK_CMD("ret", RET)
-	if (word == "push")
-	{
-		word = Pusher();
-		if (word != "0")
-		{
-			num++;
-			return word;
-		}
-		else return "0";
-	}
-	if (word == "pop")
-	{
-		word = Poper();
-		if (word != "0")
-		{
-			num++;
-			return word;
-		}
-		else return "0";
-	}
-	if (word == "in")
-	{
-		word = Iner();
-		if (word != "0")
-		{
-			num++;
-			return word;
-		}
-		else return "0";
-	}
-	if ((word == "ja") || (word == "jb") || (word == "jmp") || (word == "label") || (word == "jc"))
-	{
-		word = (Jumper(word, head_));
-		if (word != "0")
-		{
-			return word;
-		}
-		else return "0";
-	}
-	if ((word == "func") || (word == "calla") || (word == "callc") || (word == "callp") || (word == "ret"))
-	{
-		word = (Funcer(word, head_));
-		if (word != "0")
-		{
-			return word;
-		}
-		else return "0";
-	}
-	else
-	{
-		return "0";
-	}
+#define CHECK_CMD(STR, CONST) if(STR == word)\
+		{ word = getStrFromNumber(CONST) ; num++; return word; }
+	CHECK_CMD("sin", SIN);
+	CHECK_CMD("cos", COS);
+	CHECK_CMD("halt", HALT);
+	CHECK_CMD("add", ADD);
+	CHECK_CMD("div", DIV);
+	CHECK_CMD("sqrt", SQRT);
+	CHECK_CMD("mul", MUL);
+	CHECK_CMD("sub", SUB);
+	CHECK_CMD("out", OUT);
+	CHECK_CMD("ded", DED);
+	CHECK_CMD("ret", RET);
+#undef CHECH_CMD
+
+#define COMP_F(STR, ax, bx, cx, dx, con) if(STR == word)\
+		{ word = Complicate_F(ax, bx, cx, dx, con); if (word != "0") { num++; return word; } else return "0"; }
+	COMP_F("push", PUSH_AX, PUSH_BX, PUSH_CX, PUSH_DX, PUSH);
+	COMP_F("pop" , POP_AX, POP_BX, POP_CX, POP_DX, NULL);
+	COMP_F("in", IN_AX, IN_BX, IN_CX, IN_DX, IN);
+	COMP_F("dec", DEC_AX, DEC_BX, DEC_CX, DEC_DX, DEC_S);
+	COMP_F("inc", INC_AX, INC_BX, INC_CX, INC_DX, INC_S);
+#undef COMP_F
+
+#define JMP_ ("ja") || ("jna") || ("je") || ("jne") || ("jb") || ("jnb") || ("jmp")
+#define CALL_ ("calla") || ("callna") || ("calle") || ("callne") || ("callb") || ("callnb") || ("call")
+
+#define FUNC_JMP(DEFINE) if (word == DEFINE)\
+			{ word = (to_Marker(word, head_)); if (word != "0") { return word; } else return "0"; }
+	FUNC_JMP(CALL_);
+	FUNC_JMP(JMP_);
+#undef FUNC_JMP
+
+	return "0";
 }
 
-string ASM::Poper()
-{
-	string this_word;
-	std::cin >> this_word;
-	fprintf(stderr, "Cin \"Pop\" has read: %s\n", this_word.c_str());
-
-	this_word = CommandsCPUpop(this_word);
-	if (this_word != "0")
-	{
-		num--;
-		return this_word;
-	}
-	else
-	{
-		fprintf(stderr, "But,...\n");
-		return "0";
-	}
-}
-
-string ASM::Iner()
-{
-	string this_word;
-	std::cin >> this_word;
-	fprintf(stderr, "Cin \"Pop\" has read: %s\n", this_word.c_str());
-
-	this_word = CommandsCPUin(this_word);
-	if (this_word != "0")
-	{
-		num--;
-		return this_word;
-	}
-	else
-	{
-		fprintf(stderr, "But,...\n");
-		return "0";
-	}
-}
-
-string ASM::Pusher()
+string ASM::Complicate_F(const int ax, const int bx, const int cx, const int dx, const int con)
 {
 	string this_word;
 	std::cin >> this_word;
 	fprintf(stderr, "Cin \"Pusher\" has read: %s\n", this_word.c_str());
 
-	if (IsItNumber(this_word))
+	if ((con != NULL) && IsItNumber(this_word))
 	{
-		return(this_word = (getStrFromNumber(PUSH) + " " + this_word));
+		return(this_word = (getStrFromNumber(con) + " " + this_word));
 	}
-	this_word = CommandsCPUpush(this_word);
+	this_word = CommandsCPU(this_word, ax, bx, cx, dx);
 	if (this_word != "0")
 	{
 		num--;
@@ -314,82 +240,55 @@ string ASM::Pusher()
 	}
 }
 
-string ASM::CommandsCPUpush(string word)
+string ASM::CommandsCPU(string word, const int ax, const int bx, const int cx, const int dx)
 {
-	CHECK_CMD("cx", PUSH_CX)
-	CHECK_CMD("ax", PUSH_AX)
-	CHECK_CMD("dx", PUSH_DX)
-	CHECK_CMD("bx", PUSH_BX)
+#define CHECK_CMD(STR, CONST) if(STR == word)\
+		{ word = getStrFromNumber(CONST) ; num++; return word; }
+	CHECK_CMD("cx", cx);
+	CHECK_CMD("ax", ax);
+	CHECK_CMD("dx", dx);
+	CHECK_CMD("bx", bx);
+#undef CHECK_CMD
 	return "0";
 }
 
-string ASM::CommandsCPUpop(string word)
+string ASM::to_Marker(string word, List* list)
 {
-	CHECK_CMD("cx", POP_CX)
-	CHECK_CMD("ax", POP_AX)
-	CHECK_CMD("dx", POP_DX)
-	CHECK_CMD("bx", POP_BX)
+#define COMMANDS_TO_M(STR, CONST, WHAT) if(STR == word)\
+	{ if(Marker(word, list, WHAT)) { word = getStrFromNumber(CONST) ; num++; return word;} else return "0"; }
+	COMMANDS_TO_M("je", J_E, &data_);
+	COMMANDS_TO_M("jne", J_NE, &data_);
+	COMMANDS_TO_M("jb", J_B, &data_);
+	COMMANDS_TO_M("jnb", J_NB, &data_);
+	COMMANDS_TO_M("ja", J_A, &data_);
+	COMMANDS_TO_M("jna", J_NA, &data_);
+	COMMANDS_TO_M("label", LABEL, &data_);
+	COMMANDS_TO_M("jmp", JMP, &data_);
+	COMMANDS_TO_M("calle", CALL_E, &Func_);
+	COMMANDS_TO_M("callne", CALL_NE, &Func_);
+	COMMANDS_TO_M("callb", CALL_B, &Func_);
+	COMMANDS_TO_M("callnb", CALL_NB, &Func_);
+	COMMANDS_TO_M("calla", CALL_A, &Func_);
+	COMMANDS_TO_M("callna", CALL_NA, &Func_);
+	COMMANDS_TO_M("call", CALL, &Func_);
+	COMMANDS_TO_M("func", FUNC, &Func_)
+#undef COMMANDS_TO_M
 	return "0";
+
 }
 
-string ASM::CommandsCPUin(string word)
-{
-	CHECK_CMD("cx", IN_CX)
-	CHECK_CMD("ax", IN_AX)
-	CHECK_CMD("dx", IN_DX)
-	CHECK_CMD("bx", IN_BX)
-	return "0";
-}
-
-string ASM::Jumper(string word, List* list)
-{
-	COMMANDS_TO_JMP("ja", JA)
-	COMMANDS_TO_JMP("jp", JP)
-	COMMANDS_TO_JMP("jc", JC)
-	COMMANDS_TO_JMP("label", LABEL)
-	COMMANDS_TO_JMP("jmp", JMP)
-	return "0";
-}
-
-string ASM::Funcer(string word, List* list)
-{
-	COMMANDS_TO_JMP_F("calla", CALLA)
-	COMMANDS_TO_JMP_F("callc", CALLC)
-	COMMANDS_TO_JMP_F("callp", CALLP)
-	COMMANDS_TO_JMP_F("func", FUNC)
-	return "0";
-}
-
-bool ASM::Marker_F(string word, List* list)
+bool ASM::Marker(string word, List* list, data* what)
 {
 	string this_word;
 	std::cin >> this_word;
-	if ((word == "calla") || (word == "callc") || (word == "callp"))
+	
+	if ((word == "label") || (word == "func"))
 	{
-		fprintf(stderr, "Cin \"Marker - jx\" has read: %s\n", this_word.c_str());
-		if (this_word.back() == ':')
-		{
-			this_word.pop_back();
-			if (Func_.push_jx(this_word, list, num))
-			{
-				doNothing();
-				return true;
-			}
-			else
-			{
-				fprintf(stderr, "\nError - Marker\n");
-				return false;
-			}
-		}
-		else return false;
-	}
-	if (word == "func")
-	{
-		fprintf(stderr, "Cin \"Marker - label\" has read: %s\n", this_word.c_str());
+		fprintf(stderr, "Cin \"Marker - declaration\" has read: %s\n", this_word.c_str());
 		if (this_word[0] == ':')
 		{
 			this_word.erase(this_word.begin());
-			if (Func_.push_label(this_word, num))
+			if (what->push_label(this_word, num))
 			{
 				doNothing();
 				return true;
@@ -402,43 +301,13 @@ bool ASM::Marker_F(string word, List* list)
 		}
 		else return false;
 	}
-	else
+	else if (word == CALL_ || JMP_)
 	{
-		fprintf(stderr, "It's not a command. Start again\n", this_word);
-		return false;
-	}
-}
-
-bool ASM::Marker(string word, List* list)
-{
-	string this_word;
-	std::cin >> this_word;
-	if ((word == "ja") || (word == "jp") || (word == "jc") || (word == "jmp"))
-	{
-		fprintf(stderr, "Cin \"Marker - jx\" has read: %s\n", this_word.c_str());
+		fprintf(stderr, "Cin \"Marker - action\" has read: %s\n", this_word.c_str());
 		if (this_word.back() == ':')
 		{
 			this_word.pop_back();
-			if (data_.push_jx(this_word, list, num))
-			{
-				doNothing();
-				return true;
-			}
-			else
-			{
-				fprintf(stderr, "\nError - Marker\n");
-				return false;
-			}
-		}
-		else return false;
-	}
-	if (word == "label")
-	{
-		fprintf(stderr, "Cin \"Marker - label\" has read: %s\n", this_word.c_str());
-		if (this_word[0] == ':')
-		{
-			this_word.erase(this_word.begin());
-			if (data_.push_label(this_word, num))
+			if (what->push_jx(this_word, list, num))
 			{
 				doNothing();
 				return true;
@@ -488,4 +357,13 @@ bool ASM::Ending()
 		}
 	}
 	return true;
+}
+
+void ASM::End()
+{
+	head_->print();
+	fprintf(stderr, "Number of commands: %d", num);
+	fprintf(stderr, "\n...\n");
+	printf("%d", HALT);
+	fprintf(stderr, "\nENDING ASM\n");
 }
