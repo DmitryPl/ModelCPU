@@ -23,6 +23,7 @@ private:
 	Variable Var_;
 	List* head_;
 	size_t num;
+	FILE *file;
 
 	string Commands(string word);
 	bool Push(List* List);
@@ -119,7 +120,8 @@ const char* ASM::Files()
 	const char*  input_path = strcmp("S", input) ? input : "input.txt";
 	const char* output_path = strcmp("S", output) ? output : "output.txt";
 
-	if (!freopen(input_path, "r", stdin) || !freopen(output_path, "w", stdout))
+	file = freopen(input_path, "r", stdin);
+	if ((!file) || !freopen(output_path, "w", stdout))
 	{
 		printf("Error opening files\n");
 		return false;
@@ -247,7 +249,7 @@ string ASM::Commands(string word)
 
 string ASM::Complicate_F(const int ax, const int bx, const int cx, const int dx, const int con, const int var)
 {
-	const int place = ftell(stdin);
+	const int place = ftell(file);
 	string this_word;
 	std::cin >> this_word;
 	fprintf(stderr, "Cin \"Complicate_F\" has read: %s\n", this_word.c_str());
@@ -266,7 +268,7 @@ string ASM::Complicate_F(const int ax, const int bx, const int cx, const int dx,
 	}
 	if ((con == INC_S) || (con == DEC_S) || (con == POP_S))
 	{
-		fseek(stdin, place, SEEK_SET);
+		fseek(file, place, SEEK_SET);
 		this_word = (getStrFromNumber(con));
 		return this_word;
 	}
@@ -298,7 +300,7 @@ string ASM::CommandsCPU(string word, const int ax, const int bx, const int cx, c
 
 string ASM::Dual_F(const int word)
 {
-	const int place = ftell(stdin);
+	const int place = ftell(file);
 	string this_word;
 	std::cin >> this_word;
 
@@ -326,7 +328,7 @@ string ASM::Dual_F(const int word)
 			return "0";
 		}
 	}
-	fseek(stdin, place, SEEK_SET);
+	fseek(file, place, SEEK_SET);
 	return getStrFromNumber(word);
 }
 
