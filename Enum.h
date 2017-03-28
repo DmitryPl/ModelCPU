@@ -17,27 +17,20 @@ const int SUCCESS = 42;
 
 enum Commands_ASM
 {
-	ADD = 10, POP_AX, POP_BX, POP_DX, POP_CX, SIN, COS, DIV, SQRT, SUM, SUB, OUT, DEC, INC, LABEL, 
-	PUSH, HMD, PUSH_AX, PUSH_BX, PUSH_CX, PUSH_DX, JA, JP, DED, JMP, JC, CALLA, CALLC, CALLP, RET, FUNC, IN_AX, IN_BX, IN_CX, IN_DX
+	ADD = 10, POP_AX, POP_BX, POP_DX, POP_CX, SIN, COS, DIV, SQRT, MUL, SUB, OUT, DEC_S, INC_S, LABEL, 
+	PUSH_S, HALT, PUSH_AX, PUSH_BX, PUSH_CX, PUSH_DX, DED, JMP, RET, J_E, J_NE, J_A, J_NA, J_B, J_NB, FUNC,
+	IN_AX, IN_BX, IN_CX, IN_DX, IN_S, DEC_AX, DEC_BX, DEC_CX, DEC_DX, INC_AX, INC_BX, INC_CX, INC_DX, MOV,
+	CALL, CALL_E, CALL_NE, CALL_A, CALL_NA, CALL_B, CALL_NB, VAR, IN_V, POP_V, PUSH_V, DEC_V, INC_V, POP_S
+};
+
+enum Registr
+{
+	AX, BX, CX, DX, CON
 };
 
 class CPU;
+class List;
 typedef bool(CPU::*MyFuncType)(int);
-
-#define CHECK_CMD(STR, CONST) if(STR == word)\
-{ word = getStrFromNumber(CONST) ; num++; return word; }
-
-#define COMMANDS_TO_JMP(STR, CONST) if(STR == word)\
-{ if(Marker(word, list)) { word = getStrFromNumber(CONST) ; num++; return word;} else return "0"; }
-
-#define COMMANDS_TO_JMP_F(STR, CONST) if(STR == word)\
-{ if(Marker_F(word, list)) { word = getStrFromNumber(CONST) ; num++; return word;} else return "0"; }
-
-#define CHECK_CPU(NUM, CONST, POINTER) if(NUM == CONST)\
-{ MyFuncType res = &CPU::POINTER; return &res; }
-
-#define CHECK_CPU_F(NUM, CONST, POINTER) if(NUM == CONST)\
-{ Arrayer(); MyFuncType res = &CPU::POINTER; return &res; }
 
 #define HELP "\nCommands:\n\n\
 div - /             pop ax - stack->ax\n\
