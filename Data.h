@@ -10,7 +10,7 @@
 #include "vector"
 
 using std::vector;
-using std::find;
+using std::string;
 
 class data
 {
@@ -36,7 +36,7 @@ bool data::push_jx(string word, List* list, size_t num)
 	int a = 0;
 	if (!list && !this)
 	{
-		fprintf(stderr, "error - push_jx\n");
+		fprintf(stderr, "push - data\n");
 		return false;
 	}
 	if (name_label.size() != 0)

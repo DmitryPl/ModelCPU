@@ -148,17 +148,19 @@ void CPU::Excerpt()
 
 MyFuncType* CPU::Commands(int word)
 {
+#define CHECK_CPU(NUM, CONST, POINTER) if(NUM == CONST)\
+	{ MyFuncType res = &CPU::POINTER; return &res; }
 	CHECK_CPU(word, ADD, ADD_F);
 	CHECK_CPU(word, SIN, SIN_F);
 	CHECK_CPU(word, COS, COS_F);
 	CHECK_CPU(word, DIV, DIV_F);
 	CHECK_CPU(word, SQRT, SQRT_F);
-	CHECK_CPU(word, SUM, SUM_F);
+	CHECK_CPU(word, MUL, SUM_F);
 	CHECK_CPU(word, SUB, SUB_F);
-	CHECK_CPU(word, HMD, HMD_F);
+	CHECK_CPU(word, HALT, HMD_F);
 	CHECK_CPU(word, DED, DED_F);
-	CHECK_CPU(word, INC, INC_F);
-	CHECK_CPU(word, DEC, DEC_F);
+	CHECK_CPU(word, INC_S, INC_F);
+	CHECK_CPU(word, DEC_S, DEC_F);
 	CHECK_CPU(word, OUT, OUT_F);
 	CHECK_CPU(word, PUSH_AX, PUSH_AX_F);
 	CHECK_CPU(word, PUSH_BX, PUSH_BX_F);
@@ -179,15 +181,22 @@ MyFuncType* CPU::Commands(int word)
 	CHECK_CPU(word, LABEL, LABEL_F);
 	CHECK_CPU(word, FUNC, FUNC_F);
 	CHECK_CPU(word, RET, RET_F);
+#undef CHECK_CPU
 
-	CHECK_CPU_F(word, PUSH, PUSH_F);
-	CHECK_CPU_F(word, JC, JC_F);
-	CHECK_CPU_F(word, JA, JA_F);
+#define CHECK_CPU_F(NUM, CONST, POINTER) if(NUM == CONST)\
+	{ Arrayer(); MyFuncType res = &CPU::POINTER; return &res; }
+
+	CHECK_CPU_F(word, PUSH_S, PUSH_F);
+	CHECK_CPU_F(word, J_E, JC_F);
+	CHECK_CPU_F(word, J_NE, JA_F);
 	CHECK_CPU_F(word, JMP, JMP_F);
-	CHECK_CPU_F(word, JP, JP_F);
-	CHECK_CPU_F(word, CALLA, CALLA_F);
-	CHECK_CPU_F(word, CALLC, CALLC_F);
-	CHECK_CPU_F(word, CALLP, CALLP_F);
+	CHECK_CPU_F(word, J_B, JP_F);
+	CHECK_CPU_F(word, CALL_E, CALLA_F);
+	CHECK_CPU_F(word, CALL_NE, CALLC_F);
+	CHECK_CPU_F(word, CALL_B, CALLP_F);
+
+#undef CHECK_CPU_F
+
 	return nullptr;
 }
 
@@ -205,7 +214,7 @@ void CPU::print()
 	printf("STACK CPU: ");
 	Stack_CPU.print();
 	printf("\n");
-	printf("AX: %d, BX: %d, CX: %d, DX: %d\n", ax, bx, cx, dx);
+	printf("AX: %d, BX: %d, CX: %d, DX: %d\n NUM: %d", ax, bx, cx, dx, num);
 	printf("***************\n");
 }
 
@@ -354,7 +363,7 @@ bool CPU::PUSH_CX_F(int)
 }
 bool CPU::PUSH_DX_F(int)
 {
-	Stack_CPU.push(cx);
+	Stack_CPU.push(dx);
 	print();
 	return true;
 }

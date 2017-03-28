@@ -29,8 +29,9 @@ private:
 	string Complicate_F(const int ax, const int bx, const int cx, const int dx, const int con, const int var);
 	string CommandsCPU(string word, const int ax, const int bx, const int cx, const int dx, const int var);
 	string to_Marker(string word, List* list);
-	string First_level();
+	string First_level(string word);
 	string Second_level();
+	string Dual_F(const int word);
 	bool Varer();
 	bool Marker(string word, List* List, data* what);
 	bool Ending();
@@ -185,10 +186,9 @@ bool ASM::Assembler()
 string ASM::Commands(string word)
 {
 #define DUAL(STR, CONST) if(STR == word)\
-		{ word = getStrFromNumber(CONST) ; num++; return word; }
+		{ word = Dual_F(CONST) ; num++; return word; }
 	DUAL("add", ADD);
 	DUAL("div", DIV);
-	DUAL("sqrt", SQRT);
 	DUAL("mul", MUL);
 	DUAL("sub", SUB);
 	DUAL("mov", MOV);
@@ -202,6 +202,7 @@ string ASM::Commands(string word)
 	SINGLE("ret", RET);
 	SINGLE("sin", SIN);
 	SINGLE("cos", COS);
+	SINGLE("sqrt", SQRT);
 #undef SINGLE
 	
 #define COMP_F(STR, ax, bx, cx, dx, con, var) if(STR == word)\
@@ -250,7 +251,6 @@ string ASM::Complicate_F(const int ax, const int bx, const int cx, const int dx,
 	string this_word;
 	std::cin >> this_word;
 	fprintf(stderr, "Cin \"Complicate_F\" has read: %s\n", this_word.c_str());
-
 	if ((con != INC_S) || (con != DEC_S) || (con != POP_S))
 	{
 		if (IsItNumber(this_word))
@@ -267,7 +267,8 @@ string ASM::Complicate_F(const int ax, const int bx, const int cx, const int dx,
 	if ((con == INC_S) || (con == DEC_S) || (con == POP_S))
 	{
 		fseek(stdin, place, SEEK_SET);
-		return this_word = (getStrFromNumber(con));
+		this_word = (getStrFromNumber(con));
+		return this_word;
 	}
 	else
 	{
@@ -295,6 +296,40 @@ string ASM::CommandsCPU(string word, const int ax, const int bx, const int cx, c
 	return "0";
 }
 
+string ASM::Dual_F(const int word)
+{
+	const int place = ftell(stdin);
+	string this_word;
+	std::cin >> this_word;
+
+	if (this_word.back() == ',')
+	{
+		this_word.pop_back();
+		this_word = First_level(this_word);
+		if (this_word != "0")
+		{
+			string that_word;
+			that_word = Second_level();
+			if (that_word != "0")
+			{
+				return (word + " " + this_word + " " + that_word);
+			}
+			else
+			{
+				fprintf(stderr, "Error - Second Word\n");
+				return "0";
+			}
+		}
+		else
+		{
+			fprintf(stderr, "Error - First word\n");
+			return "0";
+		}
+	}
+	fseek(stdin, place, SEEK_SET);
+	return getStrFromNumber(word);
+}
+
 bool ASM::Varer()
 {
 	string this_word;
@@ -305,6 +340,55 @@ bool ASM::Varer()
 		return true;
 	}
 	return false;
+}
+
+string ASM::First_level(string word)
+{
+	fprintf(stderr, "Cin \"Dual_F_First\" has read: %s\n", word.c_str());
+#define FIRST_LEVEL(STR, CONST) if(STR == word)\
+	return getStrFromNumber(CONST);
+	FIRST_LEVEL("ax", AX);
+	FIRST_LEVEL("bx", BX);
+	FIRST_LEVEL("cx", CX);
+	FIRST_LEVEL("dx", DX);
+	FIRST_LEVEL("st", ST);
+#undef FIRST_LEVEL
+	int x = Var_.IsItVariable(word);
+	if (x != -1)
+	{
+		num++;
+		return word = (getStrFromNumber(VAR) + " " + getStrFromNumber(x));
+	}
+	fprintf(stderr, "But, it's not a command.\n");
+	return "0";
+}
+
+string ASM::Second_level()
+{
+	string this_word;
+	std::cin >> this_word;
+	fprintf(stderr, "Cin \"Dual_F_Second\" has read: %s\n", this_word.c_str());
+#define SECOND_LEVEL(STR, CONST) if(STR == this_word)\
+	return getStrFromNumber(CONST);
+	SECOND_LEVEL("ax", AX);
+	SECOND_LEVEL("bx", BX);
+	SECOND_LEVEL("cx", CX);
+	SECOND_LEVEL("dx", DX);
+	SECOND_LEVEL("st", ST);
+#undef SECOND_LEVEL
+
+	if (IsItNumber(this_word))
+	{
+		return this_word;
+	}
+	int x = Var_.IsItVariable(this_word);
+	if (x != -1)
+	{
+		num++;
+		return this_word = (getStrFromNumber(VAR) + " " + getStrFromNumber(x));
+	}
+	fprintf(stderr, "But it's not a command.\n");
+	return "0";
 }
 
 string ASM::to_Marker(string word, List* list)

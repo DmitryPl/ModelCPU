@@ -1,17 +1,14 @@
-jmp main:
-
-func :func
-ded
+pop
+pop
+pop
+push 50
+mov ax, 70
+mov dx, bx
+add
 push 50
 push 70
-ret
 
-label :main
-ded
-ded
-calla func:
-out
-hmd
+halt
 
 exit
 exit

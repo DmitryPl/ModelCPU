@@ -81,8 +81,3 @@ List::~List()
 	if (next)
 	    delete next;
 }
-
-void List::delete_last() const
-{
-	delete next;
-}
