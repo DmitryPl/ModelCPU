@@ -1,3 +1,1 @@
-68 68 68 25 50 is other label with this name!
- 70 is other label with this name!
-3 1 10 25 50 25 70 26 26
+10 1 60 10 17 55 63 17 25 5 70 63 55 1 63 7 22 27 27

@@ -23,7 +23,6 @@ private:
 	Variable Var_;
 	List* head_;
 	size_t num;
-	FILE *file;
 
 	string Commands(string word);
 	bool Push(List* List);
@@ -120,10 +119,9 @@ const char* ASM::Files()
 	const char*  input_path = strcmp("S", input) ? input : "input.txt";
 	const char* output_path = strcmp("S", output) ? output : "output.txt";
 
-	file = freopen(input_path, "r", stdin);
-	if ((!file) || !freopen(output_path, "w", stdout))
+	if ((!freopen(input_path, "r", stdin)) || !freopen(output_path, "w", stdout))
 	{
-		printf("Error opening files\n");
+		fprintf(stderr, "Error opening files\n");
 		return false;
 	}
 	return output_path;
@@ -249,26 +247,27 @@ string ASM::Commands(string word)
 
 string ASM::Complicate_F(const int ax, const int bx, const int cx, const int dx, const int con, const int var)
 {
-	const int place = ftell(file);
+	const int place = ftell(stdin);
 	string this_word;
 	std::cin >> this_word;
-	fprintf(stderr, "Cin \"Complicate_F\" has read: %s\n", this_word.c_str());
+
 	if ((con != INC_S) || (con != DEC_S) || (con != POP_S))
 	{
 		if (IsItNumber(this_word))
 		{
+			fprintf(stderr, "Cin \"Complicate_F\" has read: %s\n", this_word.c_str());
 			return(this_word = (getStrFromNumber(con) + " " + this_word));
 		}
 	}
 	this_word = CommandsCPU(this_word, ax, bx, cx, dx, var);
 	if (this_word != "0")
 	{
-		num--;
+		fprintf(stderr, "Cin \"Complicate_F\" has read: %s\n", this_word.c_str());
 		return this_word;
 	}
 	if ((con == INC_S) || (con == DEC_S) || (con == POP_S))
 	{
-		fseek(file, place, SEEK_SET);
+		fseek(stdin, place, SEEK_SET);
 		this_word = (getStrFromNumber(con));
 		return this_word;
 	}
@@ -281,8 +280,8 @@ string ASM::Complicate_F(const int ax, const int bx, const int cx, const int dx,
 
 string ASM::CommandsCPU(string word, const int ax, const int bx, const int cx, const int dx, const int var)
 {
-#define CHECK_CMD(STR, CONST) if(STR == word)\
-		{ word = getStrFromNumber(CONST) ; num++; return word; }
+#define CHECK_CMD(STR, CONST) if(STR == word) { fprintf(stderr, "Cin \"Complicate_F\" has read: %s\n", word.c_str());\
+		 word = getStrFromNumber(CONST) ; return word; }
 	CHECK_CMD("cx", cx);
 	CHECK_CMD("ax", ax);
 	CHECK_CMD("dx", dx);
@@ -292,7 +291,7 @@ string ASM::CommandsCPU(string word, const int ax, const int bx, const int cx, c
 	int x = Var_.IsItVariable(word);
 	if (x != -1)
 	{
-		num++;
+		fprintf(stderr, "Cin \"Complicate_F\" has read: %s\n", word.c_str());
 		return word = (getStrFromNumber(var) + " " + getStrFromNumber(x));
 	}
 	return "0";
@@ -300,7 +299,7 @@ string ASM::CommandsCPU(string word, const int ax, const int bx, const int cx, c
 
 string ASM::Dual_F(const int word)
 {
-	const int place = ftell(file);
+	const int place = ftell(stdin);
 	string this_word;
 	std::cin >> this_word;
 
@@ -314,7 +313,8 @@ string ASM::Dual_F(const int word)
 			that_word = Second_level();
 			if (that_word != "0")
 			{
-				return (word + " " + this_word + " " + that_word);
+				this_word = getStrFromNumber(word) + " " + this_word + " " + that_word;
+				return this_word;
 			}
 			else
 			{
@@ -328,7 +328,7 @@ string ASM::Dual_F(const int word)
 			return "0";
 		}
 	}
-	fseek(file, place, SEEK_SET);
+	fseek(stdin, place ,SEEK_SET);
 	return getStrFromNumber(word);
 }
 
@@ -336,6 +336,7 @@ bool ASM::Varer()
 {
 	string this_word;
 	std::cin >> this_word;
+	fprintf(stderr, "Cin \"Varer\" has read: %s\n", this_word.c_str());
 
 	if (Var_.push_decl(this_word, num))
 	{
@@ -348,7 +349,7 @@ string ASM::First_level(string word)
 {
 	fprintf(stderr, "Cin \"Dual_F_First\" has read: %s\n", word.c_str());
 #define FIRST_LEVEL(STR, CONST) if(STR == word)\
-	return getStrFromNumber(CONST);
+		{ word = getStrFromNumber(CONST); return word; }
 	FIRST_LEVEL("ax", AX);
 	FIRST_LEVEL("bx", BX);
 	FIRST_LEVEL("cx", CX);
@@ -358,8 +359,8 @@ string ASM::First_level(string word)
 	int x = Var_.IsItVariable(word);
 	if (x != -1)
 	{
-		num++;
-		return word = (getStrFromNumber(VAR) + " " + getStrFromNumber(x));
+		word = (getStrFromNumber(VAR_D) + " " + getStrFromNumber(x));
+		return word;
 	}
 	fprintf(stderr, "But, it's not a command.\n");
 	return "0";
@@ -386,7 +387,6 @@ string ASM::Second_level()
 	int x = Var_.IsItVariable(this_word);
 	if (x != -1)
 	{
-		num++;
 		return this_word = (getStrFromNumber(VAR) + " " + getStrFromNumber(x));
 	}
 	fprintf(stderr, "But it's not a command.\n");

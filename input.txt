@@ -1,12 +1,13 @@
-pop
-pop
-pop
-push 50
-mov ax, 70
-mov dx, bx
+add ax, 60
 add
-push 50
-push 70
+div
+mov
+
+var x
+div x, 70
+var y
+mov ax, y
+dec
 
 halt
 
