@@ -12,9 +12,9 @@
 void main()
 {
 	ASM Socialism;
-	//CPU Ñommunism;
+	CPU Ñommunism;
 	const char* a = Socialism.Dialog();
-	/*if (a)
+	if (a)
 	{
 		getch();
 		if (Ñommunism.CPU_(a))
@@ -29,7 +29,7 @@ void main()
 	else
 	{
 		fprintf(stderr, "\nERROR ASM\n");
-	}*/
+	}
 	fprintf(stderr, "\nPress the button.\n");
 	getch();
 }

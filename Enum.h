@@ -17,10 +17,11 @@ const int SUCCESS = 42;
 
 enum Commands_ASM
 {
-	ADD = 10, POP_AX, POP_BX, POP_DX, POP_CX, SIN, COS, DIV, SQRT, MUL, SUB, OUT, DEC_S, INC_S, LABEL, VAR_D,
+	ADD_D = 10, POP_AX, POP_BX, POP_DX, POP_CX, DIV_S, MUL_V, MUL_S, SUB, OUT, DEC_S, INC_S, LABEL, VAR_D, 
 	PUSH_S, HALT, PUSH_AX, PUSH_BX, PUSH_CX, PUSH_DX, DED, JMP, RET, J_E, J_NE, J_A, J_NA, J_B, J_NB, FUNC,
-	IN_AX, IN_BX, IN_CX, IN_DX, IN_S, DEC_AX, DEC_BX, DEC_CX, DEC_DX, INC_AX, INC_BX, INC_CX, INC_DX, MOV,
-	CALL, CALL_E, CALL_NE, CALL_A, CALL_NA, CALL_B, CALL_NB, VAR, IN_V, POP_V, PUSH_V, DEC_V, INC_V, POP_S
+	IN_AX, IN_BX, IN_CX, IN_DX, IN_S, DEC_AX, DEC_BX, DEC_CX, DEC_DX, INC_AX, INC_BX, INC_CX, INC_DX, MOV_D,
+	CALL, CALL_E, CALL_NE, CALL_A, CALL_NA, CALL_B, CALL_NB, VAR, IN_V, PUSH_V, DEC_V, INC_V, POP_S, POP_V,
+	SQRT_S, SQRT_AX, SQRT_BX, SQRT_CX, SQRT_DX, SQRT_V, ADD_S, DIV_D, SUB_D, MUL_D, SUB_S
 };
 
 enum Registr
@@ -30,7 +31,7 @@ enum Registr
 
 class CPU;
 class List;
-typedef bool(CPU::*MyFuncType)(int);
+typedef bool(CPU::*MyFuncType)();
 
 #define HELP "\nCommands:\n\n\
 div - /             pop ax - stack->ax\n\

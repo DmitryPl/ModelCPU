@@ -7,10 +7,16 @@
 #include "string.h"
 #include "string"
 #include "math.h"
+#include "map"
 #include "iostream"
 #include "Stack.h"
 #include "Enum.h"
 #include "Functions.h"
+#include "SingleType.h"
+
+using std::map;
+typedef map<size_t, int> Variable_T;
+typedef bool(*CompFunction)(int, int);
 
 class CPU
 {
@@ -18,60 +24,66 @@ private:
 	Stack Stack_CPU;
 	Stack of_Function;
 	Functions Mrakobesie;
+	SingleType China;
+	Variable_T Variable_;
 	int ax, bx, cx, dx;
 	size_t num;
 	FILE *file;
 
 	bool Files(const char* output);
 	bool Reader();
-	void Excerpt();
-	MyFuncType* Commands(int word);
-	void Arrayer();
-	void print();
+	bool Excerpt();
+	MyFuncType Commands(int word);
+	void Jumper_CPU(int word, const int);
+	void Caller_CPU(int word);
+	bool conditionJump(CompFunction comp, string nameOfOperation);
+	bool VAR_();
+	bool Single_CPU(int word);
+	void Dual_CPU(int word);
+	void print() const;
+	int* Choose_Reg(const int x);
+	bool doNothing_vr2();
 
-	bool ADD_F(int);
-	bool SIN_F(int);
-	bool COS_F(int);
-	bool DEC_F(int);
-	bool INC_F(int);
-	bool DED_F(int);
-	bool DIV_F(int);
-	bool SUB_F(int);
-	bool SUM_F(int);
-	bool SQRT_F(int);
-	bool HMD_F(int);
-	bool OUT_F(int);
-	bool PUSH_AX_F(int);
-	bool PUSH_BX_F(int);
-	bool PUSH_CX_F(int);
-	bool PUSH_DX_F(int);
-	bool IN_AX_F(int);
-	bool IN_BX_F(int);
-	bool IN_CX_F(int);
-	bool IN_DX_F(int);
-	bool POP_AX_F(int);
-	bool POP_BX_F(int);
-	bool POP_CX_F(int);
-	bool POP_DX_F(int);
-	bool LABEL_F(int);
-	bool FUNC_F(int);
-	bool RET_F(int);
-
-	bool PUSH_F(int x);
-	bool JA_F(int x);
-	bool JC_F(int x);
-	bool JP_F(int x);
-	bool JMP_F(int x);
-	bool CALLA_F(int x);
-	bool CALLC_F(int x);
-	bool CALLP_F(int x);
+	bool ADD_();
+	bool DEC_();
+	bool INC_();
+	bool DED_();
+	bool DIV_();
+	bool SUB_();
+	bool MUL_();
+	bool SQRT_();
+	bool HALT_();
+	bool OUT_();
+	bool IN_();
+	bool POP_();
+	bool RET_();
+	bool PUSH_();
+	bool JMP_();
+	bool CALL_();
+	bool MOV_D_();
+	bool DIV_D_();
+	bool SUB_D_();
+	bool MUL_D_();
+	bool ADD_D_();
+	bool J_A_L();
+	bool J_NA_L();
+	bool J_NB_L();
+	bool J_B_L();
+	bool J_E_L();
+	bool J_NE_L();
+	bool JMP_L();
+	bool CALL_A_F();
+	bool CALL_NA_F();
+	bool CALL_B_F();
+	bool CALL_NB_F();
+	bool CALL_E_F();
+	bool CALL_NE_F();
+	bool CALL_F();
 
 public:
 	explicit CPU() :
 		ax(0), bx(0), cx(0), dx(0), num(0)
-	{ 
-		Mrakobesie = {};
-	}
+	{ 	}
 
 	bool CPU_(const char* output);
 
@@ -113,13 +125,13 @@ bool CPU::Reader()
 	while (!feof(file))
 	{
 		int word = 0;
-		MyFuncType* i = nullptr;
+		MyFuncType i = nullptr;
 		fscanf(file, "%d", &word);
 		printf("Scanf \"Reader\" has read: %d\n", word);
 		i = Commands(word);
 		if (i != nullptr)
 		{
-			Mrakobesie.push(*i);
+			Mrakobesie.push(i);
 			num++;
 		}
 		else
@@ -128,97 +140,207 @@ bool CPU::Reader()
 			return false;
 		}
 	}
-	Excerpt();
+	if (!Excerpt())
+	{
+		return false;
+	}
 	return true;
 }
 
-void CPU::Excerpt()
+bool CPU::VAR_()
 {
+	int x = 0;
+	Variable_.insert(std::pair<size_t, int>(num + 1, x));
+	return true;
+}
+
+bool CPU::Excerpt()
+{
+	Mrakobesie.print();
+	China.print();
 	printf("\nSTART...\n");
 	getch();
 	num = 0;
-	int b;
 	while (num < Mrakobesie.size_type())
 	{
-		b = Mrakobesie.return_numbers(num);
-		(this->*Mrakobesie.do_(num))(b);
-		num++;
+		if ((this->*Mrakobesie.do_(num))())
+		{
+			printf("num: %d\n", num);
+			num++;
+		}
+		else
+		{
+			printf("Error - Excerpt");
+			return false;
+		}
 	}
+	return true;
 }
 
-MyFuncType* CPU::Commands(int word)
+MyFuncType CPU::Commands(int word)
 {
-#define CHECK_CPU(NUM, CONST, POINTER) if(NUM == CONST)\
-	{ MyFuncType res = &CPU::POINTER; return &res; }
-	CHECK_CPU(word, ADD, ADD_F);
-	CHECK_CPU(word, SIN, SIN_F);
-	CHECK_CPU(word, COS, COS_F);
-	CHECK_CPU(word, DIV, DIV_F);
-	CHECK_CPU(word, SQRT, SQRT_F);
-	CHECK_CPU(word, MUL, SUM_F);
-	CHECK_CPU(word, SUB, SUB_F);
-	CHECK_CPU(word, HALT, HMD_F);
-	CHECK_CPU(word, DED, DED_F);
-	CHECK_CPU(word, INC_S, INC_F);
-	CHECK_CPU(word, DEC_S, DEC_F);
-	CHECK_CPU(word, OUT, OUT_F);
-	CHECK_CPU(word, PUSH_AX, PUSH_AX_F);
-	CHECK_CPU(word, PUSH_BX, PUSH_BX_F);
-	CHECK_CPU(word, PUSH_CX, PUSH_CX_F);
-	CHECK_CPU(word, PUSH_DX, PUSH_DX_F);
-	CHECK_CPU(word, PUSH_AX, IN_AX_F);
-	CHECK_CPU(word, PUSH_BX, IN_BX_F);
-	CHECK_CPU(word, PUSH_CX, IN_CX_F);
-	CHECK_CPU(word, PUSH_DX, IN_DX_F);
-	CHECK_CPU(word, POP_AX, POP_AX_F);
-	CHECK_CPU(word, POP_DX, POP_DX_F);
-	CHECK_CPU(word, POP_CX, POP_CX_F);
-	CHECK_CPU(word, POP_BX, POP_BX_F);
-	CHECK_CPU(word, IN_AX, IN_AX_F);
-	CHECK_CPU(word, IN_DX, IN_DX_F);
-	CHECK_CPU(word, IN_CX, IN_CX_F);
-	CHECK_CPU(word, IN_BX, IN_BX_F);
-	CHECK_CPU(word, LABEL, LABEL_F);
-	CHECK_CPU(word, FUNC, FUNC_F);
-	CHECK_CPU(word, RET, RET_F);
-#undef CHECK_CPU
+#define CHECK_ZERO(CONST, POINTER) if(word == CONST)\
+		{ MyFuncType res = &CPU::POINTER; return res; }
+	CHECK_ZERO(RET, RET_);
+	CHECK_ZERO(DED, DED_);
+	CHECK_ZERO(HALT, HALT_);
+	CHECK_ZERO(OUT, OUT_);
+	CHECK_ZERO(ADD_S, ADD_);
+	CHECK_ZERO(MUL_S, MUL_);
+	CHECK_ZERO(DIV_S, DIV_);
+	CHECK_ZERO(SUB_S, SUB_);
+	CHECK_ZERO(LABEL, doNothing_vr2);
+	CHECK_ZERO(FUNC, doNothing_vr2);
+#undef CHECK_ZERO
 
-#define CHECK_CPU_F(NUM, CONST, POINTER) if(NUM == CONST)\
-	{ Arrayer(); MyFuncType res = &CPU::POINTER; return &res; }
+#define CHECK_SINGLE(con, ax, bx, cx, dx, var, POINTER)\
+	if((word == con) || (word ==  ax) || (word == bx) || (word == cx) || (word == dx) || (word == var))\
+						{ if(Single_CPU(word)){ MyFuncType res = &CPU::POINTER; return res; } else return nullptr; }
+	CHECK_SINGLE(PUSH_S, PUSH_AX, PUSH_BX, PUSH_CX, PUSH_DX, PUSH_V, PUSH_);
+	CHECK_SINGLE(SQRT_S, SQRT_AX, SQRT_BX, SQRT_CX, SQRT_DX, SQRT_V, SQRT_);
+	CHECK_SINGLE(POP_S, POP_AX, POP_BX, POP_CX, POP_DX, NULL, POP_);
+	CHECK_SINGLE(INC_S, INC_AX, INC_BX, INC_CX, INC_DX, INC_V, INC_);
+	CHECK_SINGLE(DEC_S, DEC_AX, DEC_BX, DEC_CX, DEC_DX, DEC_V, DEC_);
+	CHECK_SINGLE(IN_S, IN_AX, IN_BX, IN_CX, IN_DX, IN_V, IN_);
+#undef CHECK_SINGLE
 
-	CHECK_CPU_F(word, PUSH_S, PUSH_F);
-	CHECK_CPU_F(word, J_E, JC_F);
-	CHECK_CPU_F(word, J_NE, JA_F);
-	CHECK_CPU_F(word, JMP, JMP_F);
-	CHECK_CPU_F(word, J_B, JP_F);
-	CHECK_CPU_F(word, CALL_E, CALLA_F);
-	CHECK_CPU_F(word, CALL_NE, CALLC_F);
-	CHECK_CPU_F(word, CALL_B, CALLP_F);
+#define CHECK_JMP(CONST, POINTER) if(word == CONST)\
+				{ Jumper_CPU(word, CONST); MyFuncType res = &CPU::POINTER; return res; }
+	CHECK_JMP(JMP, JMP_L);
+	CHECK_JMP(J_A, J_A_L);
+	CHECK_JMP(J_NA, J_NA_L);
+	CHECK_JMP(J_B, J_NA_L);
+	CHECK_JMP(J_NB, J_NB_L);
+	CHECK_JMP(J_E, J_E_L);
+	CHECK_JMP(J_NE, J_NE_L);
+#undef CHECK_JMP
 
-#undef CHECK_CPU_F
+#define CHECK_CALL(CONST, POINTER) if(word == CONST)\
+				{ Caller_CPU(word); MyFuncType res = &CPU::POINTER; return res; }
+	CHECK_CALL(CALL, CALL_F);
+	CHECK_CALL(CALL_A, CALL_A_F);
+	CHECK_CALL(CALL_NA, CALL_NA_F);
+	CHECK_CALL(CALL_B, CALL_B_F);
+	CHECK_CALL(CALL_NB, CALL_NB_F);
+	CHECK_CALL(CALL_E, CALL_E_F);
+	CHECK_CALL(CALL_NE, CALL_NE_F);
+#undef CHECK_CALL
+
+#define CHECK_DUAL(CONST, POINTER) if (word == CONST)\
+				{ Dual_CPU(word); MyFuncType res = &CPU::POINTER; return res; }
+	CHECK_DUAL(ADD_D, ADD_D_);
+	CHECK_DUAL(DIV_D, DIV_D_);
+	CHECK_DUAL(MUL_D, MUL_D_);
+	CHECK_DUAL(SUB_D, SUB_D_);
+	CHECK_DUAL(MOV_D, MOV_D_);
+#undef CHECK_DUAL
+	if (word == VAR)
+	{
+		VAR_();
+		return &CPU::doNothing_vr2;
+	}
 
 	return nullptr;
 }
 
-void CPU::Arrayer()
+bool CPU::Single_CPU(int word)
 {
-	int zzz;
-	fscanf(file, "%d", &zzz);
-	printf("Scanf \"Arrayer\" has read: %d \n", zzz);
-	Mrakobesie.write_numbers(num, zzz);
+	const int place = ftell(file);
+	int num_this;
+	fscanf(file, "%d", &num_this);
+	if ((word == INC_V) || (word == DEC_V) || (word == PUSH_V) || (word == SQRT_V) || (word == IN_S))
+	{
+		printf("Scanf \"Single\" has read: %d\n", num_this);
+		if (num_this == VAR_D)
+		{
+			fscanf(file, "%d", &num_this);
+			China.push(num, num_this, word);
+			return true;
+		}
+		else
+		{
+			printf("Error - var - enter\n");
+			return false;
+		}
+	}
+	if (word == PUSH_S)
+	{
+		printf("Scanf \"Single\" has read: %d\n", num_this);
+		China.push(num, num_this, word);
+		return true;
+	}
+	if ((word == INC_S) || (word == DEC_S) || (word || SQRT_S) || (word == POP_S) || (word == IN_S))
+	{
+		China.push(num, NULL, word);
+		fseek(file, place, SEEK_SET);
+		return true;
+	}
+	if ((word == INC_AX) || (word == DEC_AX) || (word == PUSH_AX) || (word || SQRT_AX) || (word == POP_AX) || (word == IN_AX))
+	{
+		China.push(num, NULL, word);
+		fseek(file, place, SEEK_SET);
+		return true;
+	}
+	if ((word == INC_BX) || (word == DEC_BX) || (word == PUSH_BX) || (word || SQRT_BX) || (word == POP_BX) || (word == IN_BX))
+	{
+		China.push(num, NULL, word);
+		fseek(file, place, SEEK_SET);
+		return true;
+	}
+	if ((word == INC_CX) || (word == DEC_CX) || (word == PUSH_CX) || (word || SQRT_CX) || (word == POP_CX) || (word == IN_CX))
+	{
+		China.push(num, NULL, word);
+		fseek(file, place, SEEK_SET);
+		return true;
+	}
+	if ((word == INC_DX) || (word == DEC_DX) || (word == PUSH_DX) || (word || SQRT_DX) || (word == POP_DX) || (word == IN_DX))
+	{
+		China.push(num, NULL, word);
+		fseek(file, place, SEEK_SET);
+		return true;
+	}
+	printf("Error - Single Func\n");
+	return false;
 }
 
-void CPU::print()
+void CPU::Dual_CPU(int word)
+{
+
+}
+
+void CPU::Jumper_CPU(int word, const int)
+{
+	int n;
+	fscanf(file, "%d", &n);
+	printf("Scanf \"Jumper\" has read: %d \n", n);
+	Mrakobesie.write_numbers(num, n);
+}
+
+void CPU::Caller_CPU(int word)
+{
+	int n;
+	fscanf(file, "%d", &n);
+	printf("Scanf \"Caller\" has read: %d \n", n);
+	Mrakobesie.write_numbers(num, n);
+}
+
+void CPU::print() const
 {
 	printf("***************\n");
 	printf("STACK CPU: ");
 	Stack_CPU.print();
 	printf("\n");
-	printf("AX: %d, BX: %d, CX: %d, DX: %d\n NUM: %d", ax, bx, cx, dx, num);
+	of_Function.print();
+	printf("AX: %d, BX: %d, CX: %d, DX: %d NUM: %d\n", ax, bx, cx, dx, num);
 	printf("***************\n");
 }
 
-bool CPU::ADD_F(int)
+bool CPU::doNothing_vr2()
+{
+	return true;
+}
+
+bool CPU::ADD_()
 {
 	if (Stack_CPU.size() > 2)
 	{
@@ -235,34 +357,7 @@ bool CPU::ADD_F(int)
 		return false;
 	}
 }
-bool CPU::SIN_F(int)
-{
-	printf("sin ax / 360 = %f!\n", sin(ax / 360));
-	return true;
-}
-bool CPU::COS_F(int)
-{
-	printf("cos ax / 360 = %f!\n", cos(ax / 360));
-	return true;
-}
-bool CPU::DEC_F(int)
-{
-	dx--;
-	print();
-	return true;
-}
-bool CPU::INC_F(int)
-{
-	dx++;
-	print();
-	return true;
-}
-bool CPU::DED_F(int)
-{
-	printf("\nDo you respect the SPACE?\n\n");
-	return true;
-}
-bool CPU::DIV_F(int)
+bool CPU::DIV_()
 {
 	if (Stack_CPU.size() > 2)
 	{
@@ -279,7 +374,7 @@ bool CPU::DIV_F(int)
 		return false;
 	}
 }
-bool CPU::SUB_F(int)
+bool CPU::SUB_()
 {
 	if (Stack_CPU.size() > 2)
 	{
@@ -296,7 +391,7 @@ bool CPU::SUB_F(int)
 		return false;
 	}
 }
-bool CPU::SUM_F(int)
+bool CPU::MUL_()
 {
 	if (Stack_CPU.size() > 2)
 	{
@@ -313,27 +408,17 @@ bool CPU::SUM_F(int)
 		return false;
 	}
 }
-bool CPU::SQRT_F(int)
+bool CPU::DED_()
 {
-	if (!Stack_CPU.empty())
-	{
-		Stack_CPU.push(sqrt(Stack_CPU.pop()));
-		print();
-		return true;
-	}
-	else
-	{
-		printf("Error - sqrt - empty\n");
-		print();
-		return false;
-	}
+	printf("\nDo you respect the SPACE?\n\n");
+	return true;
 }
-bool CPU::HMD_F(int)
+bool CPU::HALT_()
 {
 	num = Mrakobesie.size_type();
 	return true;
 }
-bool CPU::OUT_F(int)
+bool CPU::OUT_()
 {
 	printf("***************\n");
 	printf("STACK CPU: ");
@@ -343,175 +428,7 @@ bool CPU::OUT_F(int)
 	printf("***************\n");
 	return true;
 }
-bool CPU::PUSH_AX_F(int)
-{
-	Stack_CPU.push(ax);
-	print();
-	return true;
-}
-bool CPU::PUSH_BX_F(int)
-{
-	Stack_CPU.push(bx);
-	print();
-	return true;
-}
-bool CPU::PUSH_CX_F(int)
-{
-	Stack_CPU.push(cx);
-	print();
-	return true;
-}
-bool CPU::PUSH_DX_F(int)
-{
-	Stack_CPU.push(dx);
-	print();
-	return true;
-}
-bool CPU::IN_AX_F(int)
-{
-	while (true)
-	{
-		printf("ENTER NUMBER (AX):\n");
-		string this_word;
-		std::cin >> this_word;
-		if (IsItNumber(this_word))
-		{
-			ax = atoi(this_word.c_str());
-			print();
-			return true;
-		}
-		else
-		{
-			printf("It's not a number, try again.\n");
-		}
-	}
-}
-bool CPU::IN_BX_F(int)
-{
-	while (true)
-	{
-		printf("ENTER NUMBER (AX):\n");
-		string this_word;
-		std::cin >> this_word;
-		if (IsItNumber(this_word))
-		{
-			bx = atoi(this_word.c_str());
-			print();
-			return true;
-		}
-		else
-		{
-			printf("It's not a number, try again.\n");
-		}
-	}
-}
-bool CPU::IN_CX_F(int)
-{
-	while (true)
-	{
-		printf("ENTER NUMBER (AX):\n");
-		string this_word;
-		std::cin >> this_word;
-		if (IsItNumber(this_word))
-		{
-			cx = atoi(this_word.c_str());
-			print();
-			return true;
-		}
-		else
-		{
-			printf("It's not a number, try again.\n");
-		}
-	}
-}
-bool CPU::IN_DX_F(int)
-{
-	while (true)
-	{
-		printf("ENTER NUMBER (AX):\n");
-		string this_word;
-		std::cin >> this_word;
-		if (IsItNumber(this_word))
-		{
-			dx = atoi(this_word.c_str());
-			print();
-			return true;
-		}
-		else
-		{
-			printf("It's not a number, try again.\n");
-		}
-	}
-}
-bool CPU::POP_AX_F(int)
-{
-	if (!Stack_CPU.empty())
-	{
-		ax = Stack_CPU.pop();
-		print();
-		return true;
-	}
-	else
-	{
-		printf("Stack - empty - error!\n");
-		print();
-		return false;
-	}
-}
-bool CPU::POP_BX_F(int)
-{
-	if (!Stack_CPU.empty())
-	{
-		bx = Stack_CPU.pop();
-		print();
-		return true;
-	}
-	else
-	{
-		printf("Stack - empty - error!\n");
-		print();
-		return false;
-	}
-}
-bool CPU::POP_CX_F(int)
-{
-	if (!Stack_CPU.empty())
-	{
-		cx = Stack_CPU.pop();
-		print();
-		return true;
-	}
-	else
-	{
-		printf("Stack - empty - error!\n");
-		print();
-		return false;
-	}
-}
-bool CPU::POP_DX_F(int)
-{
-	if (!Stack_CPU.empty())
-	{
-		dx = Stack_CPU.pop();
-		print();
-		return true;
-	}
-	else
-	{
-		printf("Stack - empty - error!\n");
-		print();
-		return false;
-	}
-}
-bool CPU::LABEL_F(int)
-{
-	return true;
-}
-bool CPU::FUNC_F(int)
-{
-	return true;
-}
-bool CPU::RET_F(int)
+bool CPU::RET_()
 {
 	if (!of_Function.empty())
 	{
@@ -520,170 +437,485 @@ bool CPU::RET_F(int)
 	}
 	else
 	{
-		num = Mrakobesie.size_type();
+		return false;
 	}
 }
 
-bool CPU::PUSH_F(int x)
+bool CPU::MOV_D_()
 {
-	if (x != NAN)
+
+}
+bool CPU::DIV_D_()
+{
+
+}
+bool CPU::SUB_D_()
+{
+
+}
+bool CPU::MUL_D_()
+{
+
+}
+bool CPU::ADD_D_()
+{
+
+}
+
+int* CPU::Choose_Reg(const int x)
+{
+	if ((x == IN_AX) || (x == PUSH_AX) || (x == SQRT_AX) || (x == POP_AX) || (x == INC_AX) || (x == DEC_AX))
 	{
-		Stack_CPU.push(x);
+		return &ax;
+		printf("ENTER NUMBER (AX):\n");
+	}
+	if ((x == IN_BX) || (x == PUSH_BX) || (x == SQRT_BX) || (x == POP_BX) || (x == INC_BX) || (x == DEC_BX))
+	{
+		return &bx;
+		printf("ENTER NUMBER (BX):\n");
+	}
+	if ((x == IN_CX) || (x == PUSH_CX) || (x == SQRT_CX) || (x == POP_CX) || (x == INC_CX) || (x == DEC_CX))
+	{
+		return &cx;
+		printf("ENTER NUMBER (CX):\n");
+	}
+	if ((x == IN_DX) || (x == PUSH_DX) || (x == SQRT_DX) || (x == POP_DX) || (x == INC_DX) || (x == DEC_DX))
+	{
+		return &dx;
+		printf("ENTER NUMBER (DX):\n");
+	}
+	return nullptr;
+}
+bool CPU::IN_()
+{
+	int command = China.return_com(num);
+	if (command == IN_S)
+	{
+		while (true)
+		{
+			printf("ENTER NUMBER (STACK):\n");
+			int num;
+			if (scanf("%d", &num) != 0)
+			{
+				Stack_CPU.push(num);
+				print();
+				return true;
+			}
+			else
+			{
+				printf("It's not a number, try again.\n");
+			}
+		}
+	}
+	if (command == IN_V)
+	{
+		while (true)
+		{
+			int x = Variable_.at(num);
+			printf("ENTER NUMBER (VAR, num %d):\n", x);
+			int num;
+			if (scanf("%d", &num) != 0)
+			{
+				Variable_.at(num) = num;
+				print();
+				return true;
+			}
+			else
+			{
+				printf("It's not a number, try again.\n");
+			}
+		}
+	}
+	int* xx = Choose_Reg(command);
+	if (xx != nullptr)
+	{
+		while (true)
+		{
+			int num;
+			if (scanf("%d", &num) != 0)
+			{
+				*xx = num;
+				print();
+				return true;
+			}
+			else
+			{
+				printf("It's not a number, try again.\n");
+			}
+		}
+	}
+	printf("error - in\n");
+	return false;
+}
+bool CPU::POP_()
+{
+	int command = China.return_com(num);
+	if (command == POP_S)
+	{	
+		if (!Stack_CPU.empty())
+		{
+			Stack_CPU.pop();
+			print();
+			return true;
+		}
+		else
+		{
+			printf("Stack - empty - pop\n");
+			print();
+			return false;
+		}
+	}
+	if (command == POP_V)
+	{
+		return true;
+	}
+	int* xx = Choose_Reg(command);
+	if (xx != nullptr)
+	{
+		if (!Stack_CPU.empty())
+		{
+			*xx = Stack_CPU.pop();
+			print();
+			return true;
+		}
+		else
+		{
+			printf("Stack - empty - pop\n");
+			print();
+			return false;
+		}
+	}
+	printf("error - pop\n");
+	return false;
+}
+bool CPU::DEC_()
+{
+	int command = China.return_com(num);
+	if (command == DEC_S)
+	{
+		command = Stack_CPU.pop();
+		command--;
+		Stack_CPU.push(command);
 		print();
+		return true;
+	}
+	if (command == DEC_V)
+	{
+		Variable_T::iterator it = Variable_.find(China.return_numbers(num));
+		if (it != Variable_.end())
+		{
+			Variable_[num]--;
+		}
+		else
+		{
+			printf("Error - var not declarated\n");
+			return false;
+		}
+		return true;
+	}
+	int* xx = Choose_Reg(command);
+	if (xx != nullptr)
+	{
+		*xx--;
+		print();
+		return true;
+	}
+	printf("error - dec\n");
+	return false;
+}
+bool CPU::INC_()
+{
+	int command = China.return_com(num);
+	if (command == INC_S)
+	{
+		command = Stack_CPU.pop();
+		command++;
+		Stack_CPU.push(command);
+		print();
+		return true;
+	}
+	if (command == INC_V)
+	{
+		Variable_T::iterator it = Variable_.find(China.return_numbers(num));
+		if (it != Variable_.end())
+		{
+			Variable_.at(num)++;
+		}
+		else
+		{
+			printf("Error - var not declarated\n");
+			return false;
+		}
+		return true;
+	}
+	int* xx = Choose_Reg(command);
+	if (xx != nullptr)
+	{
+		*xx++;
+		print();
+		return true;
+	}
+	printf("error - inc\n");
+	return false;
+}
+bool CPU::PUSH_()
+{
+	int command = China.return_com(num);
+	if (command == PUSH_S)
+	{
+		Stack_CPU.push(China.return_numbers(num));
+		print();
+		return true;
+	}
+	if (command == PUSH_V)
+	{
+		Stack_CPU.push(Variable_.at(num));
+		return true;
+	}
+	int* xx = Choose_Reg(command);
+	if (xx != nullptr)
+	{
+		if (!Stack_CPU.empty())
+		{
+			command = Stack_CPU.pop();
+			*xx = command;
+			print();
+			return true;
+		}
+		else
+		{
+			printf("Error - Stack - push - empty\n");
+			print();
+			return false;
+		}
+	}
+	printf("error - push\n");
+	return false;
+}
+bool CPU::SQRT_()
+{
+	int command = China.return_com(num);
+	if (command == SQRT_S)
+	{
+		command = Stack_CPU.pop();
+		if (command > 0)
+		{
+			Stack_CPU.push(sqrt(command));
+		}
+		else
+		{
+			printf("Error - sqrt - <0");
+			print();
+			return false;
+		}
+		print();
+		return true;
+	}
+	if (command == SQRT_V)
+	{
+		Variable_T::iterator it = Variable_.find(China.return_numbers(num));
+		if (it != Variable_.end())
+		{
+			int x = Variable_.at(num);
+			Variable_.at(num) = sqrt(x);
+		}
+		else
+		{
+			printf("Error - var not declarated\n");
+			return false;
+		}
+		return true;
+	}
+	int* xx = Choose_Reg(command);
+	if (xx != nullptr)
+	{
+		if (*xx > 0)
+		{
+			*xx = sqrt(*xx);
+		}
+		else
+		{
+			printf("Error - sqrt - <0");
+			print();
+			return false;
+		}
+		print();
+		return true;
+	}
+	printf("error - sqrt\n");
+	return false;
+}
+
+bool compNA(int a, int b) { return a >= b; }
+bool compA(int a, int b) { return a > b; }
+bool compB(int a, int b) { return a < b; };
+bool compNB(int a, int b) { return a <= b; };
+bool compE(int a, int b) { return a == b; };
+bool compNE(int a, int b) { return a != b; };
+bool CPU::conditionJump(CompFunction comp, string nameOfOperation)
+{
+	int x = Mrakobesie.return_numbers(num);
+	if (Stack_CPU.size() > 2)
+	{
+		int tmp1 = Stack_CPU.pop();
+		int tmp2 = Stack_CPU.pop();
+		if (comp(tmp1, tmp2))
+		{
+			if (x < Mrakobesie.size_type())
+			{
+				num = x;
+			}
+			else
+			{
+				printf("Error - ");
+				printf("%s - ", nameOfOperation.c_str());
+				printf("empty\n");
+				return false;
+			}
+		}
+		Stack_CPU.push(tmp2);
+		Stack_CPU.push(tmp1);
 		return true;
 	}
 	else
 	{
-		printf("Error - PUSH_F\n");
+		printf("Error - ");
+		printf("%s - ", nameOfOperation.c_str());
+		printf("empty\n");
 		print();
 		return false;
 	}
 }
-bool CPU::JA_F(int x)
+
+bool CPU::JMP_L()
 {
-	if (x != NAN)
+	int x = Mrakobesie.return_numbers(num);
+	if (x < Mrakobesie.size_type())
 	{
-		if (Stack_CPU.size() > 2)
-		{
-			int tmp1 = Stack_CPU.pop();
-			int tmp2 = Stack_CPU.pop();
-			if (tmp1 >= tmp2)
-			{
-				num = x - 1;
-			}
-			Stack_CPU.push(tmp2);
-			Stack_CPU.push(tmp1);
-			return true;
-		}
-		else
-		{
-			printf("Error - JA_F - empty\n");
-			print();
-			return false;
-		}
-	}
-	else
-	{
-		printf("Error - JA_F\n");
-		print();
-		return false;
-	}
-}
-bool CPU::JC_F(int x)
-{
-	if (x != NAN)
-	{
-		if (Stack_CPU.size() > 2)
-		{
-			int tmp1 = Stack_CPU.pop();
-			int tmp2 = Stack_CPU.pop();
-			if (tmp1 == tmp2)
-			{
-				num = x - 1;
-			}
-			Stack_CPU.push(tmp2);
-			Stack_CPU.push(tmp1);
-			return true;
-		}
-		else
-		{
-			printf("\nError - JC_F - empty\n");
-			print();
-			return false;
-		}
-	}
-	else
-	{
-		printf("Error - JC_F\n");
-		print();
-		return false;
-	}
-}
-bool CPU::JP_F(int x)
-{
-	if (x != NAN)
-	{
-		if (Stack_CPU.size() > 2)
-		{
-			int tmp1 = Stack_CPU.pop();
-			int tmp2 = Stack_CPU.pop();
-			if (tmp1 <= tmp2)
-			{
-				num = x - 1;
-			}
-			Stack_CPU.push(tmp2);
-			Stack_CPU.push(tmp1);
-			return true;
-		}
-		else
-		{
-			print();
-			printf("\nError - JP_F - empty\n");
-			return false;
-		}
-	}
-	else
-	{
-		print();
-		printf("Error - JP_F\n");
-		return false;
-	}
-}
-bool CPU::JMP_F(int x)
-{
-	if (x != NAN)
-	{
-		num = x - 1;
-		return true;
-	}
-	else
-	{
-		printf("Error - JMP_F\n");
-		print();
-		return false;
-	}
-}
-bool CPU::CALLA_F(int x)
-{
-	if (x != NAN)
-	{
-		of_Function.push(num);
 		num = x;
 		return true;
 	}
 	else
 	{
-		printf("Error - CALLA_F\n");
+		printf("Error - jmp\n");
 		print();
 		return false;
 	}
 }
-bool CPU::CALLC_F(int x)
+bool CPU::J_A_L()
 {
-	if (x != NAN)
-	{
-		of_Function.push(num);
-		num = x;
+	if (conditionJump(compA, "ja"))
 		return true;
-	}
 	else
-	{
-		printf("Error - CALLC_F\n");
-		print();
 		return false;
-	}
 }
-bool CPU::CALLP_F(int x)
+bool CPU::J_NA_L()
 {
-	if (x != NAN)
+	if (conditionJump(compNA, "jna"))
+		return true;
+	else
+		return false;
+}
+bool CPU::J_NB_L()
+{
+	if (conditionJump(compNB, "jnb"))
+		return true;
+	else
+		return false;
+}
+bool CPU::J_B_L()
+{
+	if (conditionJump(compB, "jb"))
+		return true;
+	else
+		return false;
+}
+bool CPU::J_E_L()
+{
+	if (conditionJump(compE, "je"))
+		return true;
+	else
+		return false;
+}
+bool CPU::J_NE_L()
+{
+	if (conditionJump(compNE, "jne"))
+		return true;
+	else
+		return false;
+}
+
+bool CPU::CALL_A_F()
+{
+	if (conditionJump(compA, "calla"))
 	{
 		of_Function.push(num);
-		num = x;
+		return true;
+	}
+	else
+		return false;
+}
+bool CPU::CALL_NA_F()
+{
+	if (conditionJump(compNA, "callna"))
+	{
+		of_Function.push(num);
+		return true;
+	}
+	else
+		return false;
+}
+bool CPU::CALL_B_F()
+{
+	if (conditionJump(compB, "callb"))
+	{
+		of_Function.push(num);
+		return true;
+	}
+	else
+		return false;
+}
+bool CPU::CALL_NB_F()
+{
+	if (conditionJump(compNB, "callnb"))
+	{
+		of_Function.push(num);
+		return true;
+	}
+	else
+		return false;
+}
+bool CPU::CALL_E_F()
+{
+	if (conditionJump(compE, "calle"))
+	{
+		of_Function.push(num);
+		return true;
+	}
+	else
+		return false;
+}
+bool CPU::CALL_NE_F()
+{
+	if (conditionJump(compNE, "callne"))
+	{
+		of_Function.push(num);
+		return true;
+	}
+	else
+		return false;
+}
+bool CPU::CALL_F()
+{
+	int x = Mrakobesie.return_numbers(num);
+	if (x < Mrakobesie.size_type())
+	{
+		of_Function.push(num);
 		return true;
 	}
 	else
 	{
-		printf("Error - CALLP_F\n");
+		printf("Error - call\n");
 		print();
 		return false;
 	}
