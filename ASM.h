@@ -157,6 +157,15 @@ bool ASM::Assembler()
 		{
 			Help();
 		}
+		if (word == getStrFromNumber(EOF))
+		{
+			fprintf(stderr, "EOF\n");
+			if (Ending())
+			{
+				return true;
+			}
+			
+		}
 		else
 		{
 			head_ = (head_) ? head_->push() : new List();

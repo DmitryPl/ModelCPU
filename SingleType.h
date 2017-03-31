@@ -92,7 +92,7 @@ int SingleType::return_place(size_t num_of_com)
 	int length = where_.size();
 	for (size_t i = 0; i < length; i++)
 	{
-		if (num_of_com = where_[i])
+		if (num_of_com == where_[i])
 		{
 			return i;
 		}

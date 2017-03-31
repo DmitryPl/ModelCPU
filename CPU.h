@@ -34,13 +34,14 @@ private:
 	bool Reader();
 	bool Excerpt();
 	MyFuncType Commands(int word);
-	void Jumper_CPU(int word, const int);
-	void Caller_CPU(int word);
+	void Jumper_CPU(int word);
+	void Call_Jmp(int word);
 	bool conditionJump(CompFunction comp, string nameOfOperation);
 	bool VAR_();
 	bool Single_CPU(int word);
 	void Dual_CPU(int word);
 	void print() const;
+	void print_var() const;
 	int* Choose_Reg(const int x);
 	bool doNothing_vr2();
 
@@ -165,7 +166,7 @@ bool CPU::Excerpt()
 	{
 		if ((this->*Mrakobesie.do_(num))())
 		{
-			printf("num: %d\n", num);
+			printf("num: \n%d\n", num);
 			num++;
 		}
 		else
@@ -205,7 +206,7 @@ MyFuncType CPU::Commands(int word)
 #undef CHECK_SINGLE
 
 #define CHECK_JMP(CONST, POINTER) if(word == CONST)\
-				{ Jumper_CPU(word, CONST); MyFuncType res = &CPU::POINTER; return res; }
+				{ Call_Jmp(word); MyFuncType res = &CPU::POINTER; return res; }
 	CHECK_JMP(JMP, JMP_L);
 	CHECK_JMP(J_A, J_A_L);
 	CHECK_JMP(J_NA, J_NA_L);
@@ -216,7 +217,7 @@ MyFuncType CPU::Commands(int word)
 #undef CHECK_JMP
 
 #define CHECK_CALL(CONST, POINTER) if(word == CONST)\
-				{ Caller_CPU(word); MyFuncType res = &CPU::POINTER; return res; }
+				{ Call_Jmp(word); MyFuncType res = &CPU::POINTER; return res; }
 	CHECK_CALL(CALL, CALL_F);
 	CHECK_CALL(CALL_A, CALL_A_F);
 	CHECK_CALL(CALL_NA, CALL_NA_F);
@@ -245,10 +246,34 @@ MyFuncType CPU::Commands(int word)
 
 bool CPU::Single_CPU(int word)
 {
-	const int place = ftell(file);
+	if ((word == INC_S) || (word == DEC_S) || (word == SQRT_S) || (word == POP_S) || (word == IN_S))
+	{
+		China.push(num, NULL, word);
+		return true;
+	}
+	if ((word == INC_AX) || (word == DEC_AX) || (word == PUSH_AX) || (word == SQRT_AX) || (word == POP_AX) || (word == IN_AX))
+	{
+		China.push(num, NULL, word);
+		return true;
+	}
+	if ((word == INC_BX) || (word == DEC_BX) || (word == PUSH_BX) || (word == SQRT_BX) || (word == POP_BX) || (word == IN_BX))
+	{
+		China.push(num, NULL, word);
+		return true;
+	}
+	if ((word == INC_CX) || (word == DEC_CX) || (word == PUSH_CX) || (word == SQRT_CX) || (word == POP_CX) || (word == IN_CX))
+	{
+		China.push(num, NULL, word);
+		return true;
+	}
+	if ((word == INC_DX) || (word == DEC_DX) || (word == PUSH_DX) || (word == SQRT_DX) || (word == POP_DX) || (word == IN_DX))
+	{
+		China.push(num, NULL, word);
+		return true;
+	}
 	int num_this;
 	fscanf(file, "%d", &num_this);
-	if ((word == INC_V) || (word == DEC_V) || (word == PUSH_V) || (word == SQRT_V) || (word == IN_S))
+	if ((word == INC_V) || (word == DEC_V) || (word == PUSH_V) || (word == SQRT_V) || (word == IN_V))
 	{
 		printf("Scanf \"Single\" has read: %d\n", num_this);
 		if (num_this == VAR_D)
@@ -269,36 +294,6 @@ bool CPU::Single_CPU(int word)
 		China.push(num, num_this, word);
 		return true;
 	}
-	if ((word == INC_S) || (word == DEC_S) || (word || SQRT_S) || (word == POP_S) || (word == IN_S))
-	{
-		China.push(num, NULL, word);
-		fseek(file, place, SEEK_SET);
-		return true;
-	}
-	if ((word == INC_AX) || (word == DEC_AX) || (word == PUSH_AX) || (word || SQRT_AX) || (word == POP_AX) || (word == IN_AX))
-	{
-		China.push(num, NULL, word);
-		fseek(file, place, SEEK_SET);
-		return true;
-	}
-	if ((word == INC_BX) || (word == DEC_BX) || (word == PUSH_BX) || (word || SQRT_BX) || (word == POP_BX) || (word == IN_BX))
-	{
-		China.push(num, NULL, word);
-		fseek(file, place, SEEK_SET);
-		return true;
-	}
-	if ((word == INC_CX) || (word == DEC_CX) || (word == PUSH_CX) || (word || SQRT_CX) || (word == POP_CX) || (word == IN_CX))
-	{
-		China.push(num, NULL, word);
-		fseek(file, place, SEEK_SET);
-		return true;
-	}
-	if ((word == INC_DX) || (word == DEC_DX) || (word == PUSH_DX) || (word || SQRT_DX) || (word == POP_DX) || (word == IN_DX))
-	{
-		China.push(num, NULL, word);
-		fseek(file, place, SEEK_SET);
-		return true;
-	}
 	printf("Error - Single Func\n");
 	return false;
 }
@@ -308,15 +303,7 @@ void CPU::Dual_CPU(int word)
 
 }
 
-void CPU::Jumper_CPU(int word, const int)
-{
-	int n;
-	fscanf(file, "%d", &n);
-	printf("Scanf \"Jumper\" has read: %d \n", n);
-	Mrakobesie.write_numbers(num, n);
-}
-
-void CPU::Caller_CPU(int word)
+void CPU::Call_Jmp(int word)
 {
 	int n;
 	fscanf(file, "%d", &n);
@@ -329,10 +316,21 @@ void CPU::print() const
 	printf("***************\n");
 	printf("STACK CPU: ");
 	Stack_CPU.print();
+	print_var();
 	printf("\n");
+	printf("STACK FUNC: ");
 	of_Function.print();
 	printf("AX: %d, BX: %d, CX: %d, DX: %d NUM: %d\n", ax, bx, cx, dx, num);
 	printf("***************\n");
+}
+
+void CPU::print_var() const
+{
+	std::cout << "Variable contains:\n";
+	for (auto it = Variable_.begin(); it != Variable_.end(); ++it)
+	{
+		std::cout << it->first << " : " << it->second << std::endl;
+	}
 }
 
 bool CPU::doNothing_vr2()
@@ -424,6 +422,9 @@ bool CPU::OUT_()
 	printf("STACK CPU: ");
 	Stack_CPU.print();
 	printf("\n");
+	printf("Variable:\n");
+	print_var();
+	printf("\n");
 	printf("AX: %d, BX: %d, CX: %d, DX: %d\n", ax, bx, cx, dx);
 	printf("***************\n");
 	return true;
@@ -443,46 +444,58 @@ bool CPU::RET_()
 
 bool CPU::MOV_D_()
 {
-
+	return true;
 }
 bool CPU::DIV_D_()
 {
-
+	return true;
 }
 bool CPU::SUB_D_()
 {
-
+	return true;
 }
 bool CPU::MUL_D_()
 {
-
+	return true;
 }
 bool CPU::ADD_D_()
 {
-
+	return true;
 }
 
 int* CPU::Choose_Reg(const int x)
 {
 	if ((x == IN_AX) || (x == PUSH_AX) || (x == SQRT_AX) || (x == POP_AX) || (x == INC_AX) || (x == DEC_AX))
 	{
+		if (x == IN_AX)
+		{
+			printf("ENTER NUMBER (AX):\n");
+		}
 		return &ax;
-		printf("ENTER NUMBER (AX):\n");
 	}
 	if ((x == IN_BX) || (x == PUSH_BX) || (x == SQRT_BX) || (x == POP_BX) || (x == INC_BX) || (x == DEC_BX))
 	{
+		if (x == IN_BX)
+		{
+			printf("ENTER NUMBER (BX):\n");
+		}
 		return &bx;
-		printf("ENTER NUMBER (BX):\n");
 	}
 	if ((x == IN_CX) || (x == PUSH_CX) || (x == SQRT_CX) || (x == POP_CX) || (x == INC_CX) || (x == DEC_CX))
-	{
+	{	
+		if (x == IN_CX)
+		{
+			printf("ENTER NUMBER (CX):\n");
+		}
 		return &cx;
-		printf("ENTER NUMBER (CX):\n");
 	}
 	if ((x == IN_DX) || (x == PUSH_DX) || (x == SQRT_DX) || (x == POP_DX) || (x == INC_DX) || (x == DEC_DX))
 	{
+		if (x == IN_DX)
+		{
+			printf("ENTER NUMBER (DX):\n");
+		}
 		return &dx;
-		printf("ENTER NUMBER (DX):\n");
 	}
 	return nullptr;
 }
@@ -494,10 +507,10 @@ bool CPU::IN_()
 		while (true)
 		{
 			printf("ENTER NUMBER (STACK):\n");
-			int num;
-			if (scanf("%d", &num) != 0)
+			int n = 0;
+			if (scanf("%d", &n) != 0)
 			{
-				Stack_CPU.push(num);
+				Stack_CPU.push(n);
 				print();
 				return true;
 			}
@@ -513,10 +526,10 @@ bool CPU::IN_()
 		{
 			int x = Variable_.at(num);
 			printf("ENTER NUMBER (VAR, num %d):\n", x);
-			int num;
-			if (scanf("%d", &num) != 0)
+			int n;
+			if (scanf("%d", &n) != 0)
 			{
-				Variable_.at(num) = num;
+				Variable_.at(num) = n;
 				print();
 				return true;
 			}
@@ -531,16 +544,17 @@ bool CPU::IN_()
 	{
 		while (true)
 		{
-			int num;
-			if (scanf("%d", &num) != 0)
+			int this_word;
+			if (scanf("%d", &this_word) != 0)
 			{
-				*xx = num;
+				*xx = this_word;
 				print();
 				return true;
 			}
 			else
 			{
 				printf("It's not a number, try again.\n");
+				return false;
 			}
 		}
 	}
@@ -567,6 +581,7 @@ bool CPU::POP_()
 	}
 	if (command == POP_V)
 	{
+		Variable_.at(China.return_numbers(num)) = Stack_CPU.pop();
 		return true;
 	}
 	int* xx = Choose_Reg(command);
@@ -669,7 +684,8 @@ bool CPU::PUSH_()
 	}
 	if (command == PUSH_V)
 	{
-		Stack_CPU.push(Variable_.at(num));
+		Stack_CPU.push(Variable_.at(China.return_numbers(num)));
+		print();
 		return true;
 	}
 	int* xx = Choose_Reg(command);
@@ -763,7 +779,7 @@ bool CPU::conditionJump(CompFunction comp, string nameOfOperation)
 		{
 			if (x < Mrakobesie.size_type())
 			{
-				num = x;
+				num = x - 1;
 			}
 			else
 			{
@@ -792,7 +808,7 @@ bool CPU::JMP_L()
 	int x = Mrakobesie.return_numbers(num);
 	if (x < Mrakobesie.size_type())
 	{
-		num = x;
+		num = x - 1;
 		return true;
 	}
 	else
@@ -911,6 +927,7 @@ bool CPU::CALL_F()
 	if (x < Mrakobesie.size_type())
 	{
 		of_Function.push(num);
+		num = x - 1;
 		return true;
 	}
 	else
