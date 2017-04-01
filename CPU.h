@@ -13,10 +13,12 @@
 #include "Enum.h"
 #include "Functions.h"
 #include "SingleType.h"
+#include "DualType.h"
 
 using std::map;
 typedef map<size_t, int> Variable_T;
 typedef bool(*CompFunction)(int, int);
+typedef int(*ActFunction)(int, int);
 
 class CPU
 {
@@ -25,6 +27,7 @@ private:
 	Stack of_Function;
 	Functions Mrakobesie;
 	SingleType China;
+	DualType Hedgehog;
 	Variable_T Variable_;
 	int ax, bx, cx, dx;
 	size_t num;
@@ -37,13 +40,15 @@ private:
 	void Jumper_CPU(int word);
 	void Call_Jmp(int word);
 	bool conditionJump(CompFunction comp, string nameOfOperation);
-	bool VAR_();
+	bool Var();
 	bool Single_CPU(int word);
-	void Dual_CPU(int word);
+	bool Dual_CPU(int word);
 	void print() const;
 	void print_var() const;
 	int* Choose_Reg(const int x);
 	bool doNothing_vr2();
+	bool level_(char X, int level);
+	bool Dual_do(string error, ActFunction Action);
 
 	bool ADD_();
 	bool DEC_();
@@ -148,7 +153,7 @@ bool CPU::Reader()
 	return true;
 }
 
-bool CPU::VAR_()
+bool CPU::Var()
 {
 	int x = 0;
 	Variable_.insert(std::pair<size_t, int>(num + 1, x));
@@ -157,8 +162,6 @@ bool CPU::VAR_()
 
 bool CPU::Excerpt()
 {
-	Mrakobesie.print();
-	China.print();
 	printf("\nSTART...\n");
 	getch();
 	num = 0;
@@ -237,7 +240,7 @@ MyFuncType CPU::Commands(int word)
 #undef CHECK_DUAL
 	if (word == VAR)
 	{
-		VAR_();
+		Var();
 		return &CPU::doNothing_vr2;
 	}
 
@@ -298,9 +301,56 @@ bool CPU::Single_CPU(int word)
 	return false;
 }
 
-void CPU::Dual_CPU(int word)
+bool CPU::Dual_CPU(int word)
 {
+	static int level;
+	level++;
+	char word_this[MAX_CMD_SIZE];
+	fscanf(file, "%s", word_this);
+	if ((word_this[0] == 'V') && (word_this[1] == '\0'))
+	{
+		if (level_('V', level))
+			return true;
+		return false;
+	}
+	if ((word_this[0] == 'R') && (word_this[1] == '\0'))
+	{
+		if (level_('R', level))
+			return true;
+		return false;
+	}
+	if ((word_this[0] == 'N') && (word_this[1] == '\0'))
+	{
+		if (level_('N', level))
+			return true;
+		return false;
+	}
+	else
+	{
+		printf("Error dual level %d", level);
+		return false;
+	}
+}
 
+bool CPU::level_(char X, int level)
+{
+	int num_this;
+	fscanf(file, "%d", &num_this);
+	if (level == 1)
+	{
+		Hedgehog.push_1(num, X, num_this);
+		if (Dual_CPU(num))
+		{
+			return true;
+		}
+		printf("Error - 2 level\n");
+		return false;
+	}
+	else
+	{
+		Hedgehog.push_2(X, num_this);
+		return true;
+	}
 }
 
 void CPU::Call_Jmp(int word)
@@ -442,25 +492,114 @@ bool CPU::RET_()
 	}
 }
 
+int Mov(int first, int second) { return second; }
+int Div(int first, int second) { return first / second; }
+int Mul(int first, int second) { return first * second; }
+int Add(int first, int second) { return first + second; }
+int Sub(int first, int second) { return first - second; }
+bool CPU::Dual_do(string error, ActFunction Action)
+{
+	int* x1;
+	int* x2;
+	char flag_1 = Hedgehog.return_flag_1(num);
+	if (flag_1 == '0')
+	{
+		printf("Error - %s1\n", error.c_str());
+		return false;
+	}
+	int com_1 = Hedgehog.return_com_1(num);
+	char flag_2 = Hedgehog.return_flag_2(num);
+	int com_2 = Hedgehog.return_com_2(num);
+	if (flag_1 == 'R')
+	{
+		if (com_1 == AX)  { x1 = &ax; }
+		else if (com_1 == BX)  { x1 = &bx; }
+		else if (com_1 == CX)  { x1 = &cx; }
+		else if (com_1 == DX)  { x1 = &dx; }
+		else
+		{
+			printf("Error - %s2\n", error.c_str());
+			return false;
+		}
+	}
+	if (flag_1 == 'V')
+	{
+		Variable_T::iterator it = Variable_.find(com_1);
+		if (it != Variable_.end())
+		{
+			x1 = &Variable_.at(com_1);
+		}
+	}
+	if (flag_2 == 'R')
+	{
+		if (com_2 == AX)  { x2 = &ax; }
+		else if (com_2 == BX)  { x2 = &bx; }
+		else if (com_2 == CX)  { x2 = &cx; }
+		else if (com_2 == DX)  { x2 = &dx; }
+		else
+		{
+			printf("Error - %s3\n", error.c_str());
+			return false;
+		}
+		*x1 = Action(*x1, com_2);
+		print();
+		return true;
+	}
+	if (flag_2 == 'V')
+	{
+		Variable_T::iterator it = Variable_.find(com_2);
+		if (it != Variable_.end())
+		{
+			x2 = &Variable_.at(China.return_numbers(com_2));
+			*x1 = Action(*x1, *x2);
+			print();
+			return true;
+		}
+	}
+	if (flag_2 == 'N')
+	{
+		*x1 = Action(*x1, com_2);
+		print();
+		return true;
+	}
+	printf("Error - %s4\n", error.c_str());
+	print();
+	return false;
+}
 bool CPU::MOV_D_()
 {
-	return true;
+	if (Dual_do("MOV_D_", Mov))
+		return true;
+	else
+		return false;
 }
 bool CPU::DIV_D_()
 {
-	return true;
+	if (Dual_do("DIV_D_", Div))
+		return true;
+	else
+		return false;
 }
 bool CPU::SUB_D_()
 {
-	return true;
+	if (Dual_do("SUB_D_", Sub))
+		return true;
+	else
+		return false;
 }
 bool CPU::MUL_D_()
 {
-	return true;
+	if (Dual_do("MUL_D_", Mul))
+		return true;
+	else
+		return false;
 }
 bool CPU::ADD_D_()
 {
-	return true;
+	if (Dual_do("ADD_D_", Add))
+		return true;
+	else
+		return false;
 }
 
 int* CPU::Choose_Reg(const int x)
@@ -522,20 +661,24 @@ bool CPU::IN_()
 	}
 	if (command == IN_V)
 	{
-		while (true)
+		Variable_T::iterator it = Variable_.find(China.return_numbers(num));
+		if (it != Variable_.end())
 		{
-			int x = Variable_.at(num);
-			printf("ENTER NUMBER (VAR, num %d):\n", x);
-			int n;
-			if (scanf("%d", &n) != 0)
+			int x = Variable_.at(China.return_numbers(num));
+			while (true)
 			{
-				Variable_.at(num) = n;
-				print();
-				return true;
-			}
-			else
-			{
-				printf("It's not a number, try again.\n");
+				printf("ENTER NUMBER (VAR, num %d):\n", x);
+				int n;
+				if (scanf("%d", &n) != 0)
+				{
+					Variable_.at(China.return_numbers(num)) = n;
+					print();
+					return true;
+				}
+				else
+				{
+					printf("It's not a number, try again.\n");
+				}
 			}
 		}
 	}
@@ -581,8 +724,12 @@ bool CPU::POP_()
 	}
 	if (command == POP_V)
 	{
-		Variable_.at(China.return_numbers(num)) = Stack_CPU.pop();
-		return true;
+		Variable_T::iterator it = Variable_.find(China.return_numbers(num));
+		if (it != Variable_.end())
+		{
+			Variable_.at(China.return_numbers(num)) = Stack_CPU.pop();
+			return true;
+		}
 	}
 	int* xx = Choose_Reg(command);
 	if (xx != nullptr)
@@ -619,7 +766,7 @@ bool CPU::DEC_()
 		Variable_T::iterator it = Variable_.find(China.return_numbers(num));
 		if (it != Variable_.end())
 		{
-			Variable_[num]--;
+			Variable_[China.return_numbers(num)]--;
 		}
 		else
 		{
@@ -654,7 +801,7 @@ bool CPU::INC_()
 		Variable_T::iterator it = Variable_.find(China.return_numbers(num));
 		if (it != Variable_.end())
 		{
-			Variable_.at(num)++;
+			Variable_.at(China.return_numbers(num))++;
 		}
 		else
 		{
@@ -684,9 +831,18 @@ bool CPU::PUSH_()
 	}
 	if (command == PUSH_V)
 	{
-		Stack_CPU.push(Variable_.at(China.return_numbers(num)));
-		print();
-		return true;
+		Variable_T::iterator it = Variable_.find(China.return_numbers(num));
+		if (it != Variable_.end())
+		{
+			Stack_CPU.push(Variable_.at(China.return_numbers(num)));
+			print();
+			return true;
+		}
+		else
+		{
+			printf("Error - push v");
+			return false;
+		}
 	}
 	int* xx = Choose_Reg(command);
 	if (xx != nullptr)
@@ -732,8 +888,8 @@ bool CPU::SQRT_()
 		Variable_T::iterator it = Variable_.find(China.return_numbers(num));
 		if (it != Variable_.end())
 		{
-			int x = Variable_.at(num);
-			Variable_.at(num) = sqrt(x);
+			int x = Variable_.at(China.return_numbers(num));
+			Variable_.at(China.return_numbers(num)) = sqrt(x);
 		}
 		else
 		{

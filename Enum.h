@@ -26,7 +26,7 @@ enum Commands_ASM
 
 enum Registr
 {
-	AX = 1, BX, CX, DX, ST
+	AX = 1, BX, CX, DX
 };
 
 class CPU;

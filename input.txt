@@ -1,26 +1,12 @@
-add ax, 60
-add
-div
-mov
-
-var x
-div x, 70
-var y
-mov ax, y
-dec
-
+call main
+func end
+push 666
+out
 halt
-
-exit
-exit
-Commands:
-div - /			pop ax - stack->ax				dec       - dx--			 in ax - write ax from CON
-sub - -			pop bx - stack->bx				inc       - dx++			 in bx - write bx from CON
-sum - *			pop cx - stack->cx				push (n)  - push to stack	 in cx - write cx from CON
-add - +			pop dx - stack->dx				push ax   - to ax			 in dx - write dx from CON
-ja  - >			sqrt   - top of stack->stack	push dx   - to dx
-jc  - ==		out    - print all				push cx   - to cx			 exit  - stop writting ASM, works and "in", and "file" 
-jp  - <=		ded    - SPACE  				push dx   - to dx
-jmp - jmp		hmd    - stop					call(a-p) - call func
-label :label	sin    - top of stack->CON		func :func- in func
-jmp label:		cos    - top of stack->CON		ret       - out func
+func main
+var x
+in x
+in
+push 50 push 70
+add ax, x
+call end

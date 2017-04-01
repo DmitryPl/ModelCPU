@@ -164,7 +164,7 @@ bool ASM::Assembler()
 			{
 				return true;
 			}
-			
+
 		}
 		else
 		{
@@ -204,15 +204,15 @@ string ASM::Commands(string word)
 #undef DUAL
 
 #define SINGLE(STR, CONST) if(STR == word)\
-			{ word = getStrFromNumber(CONST) ; num++; return word; }
+				{ word = getStrFromNumber(CONST) ; num++; return word; }
 	SINGLE("halt", HALT);
 	SINGLE("out", OUT);
 	SINGLE("ded", DED);
 	SINGLE("ret", RET);
 #undef SINGLE
-	
+
 #define COMP_F(STR, ax, bx, cx, dx, con, var) if(STR == word)\
-				{ word = Complicate_F(ax, bx, cx, dx, con, var); if (word != "0") { num++; return word; } else return "0"; }
+					{ word = Complicate_F(ax, bx, cx, dx, con, var); if (word != "0") { num++; return word; } else return "0"; }
 	COMP_F("sqrt", SQRT_AX, SQRT_BX, SQRT_CX, SQRT_DX, SQRT_S, SQRT_V);
 	COMP_F("push", PUSH_AX, PUSH_BX, PUSH_CX, PUSH_DX, PUSH_S, PUSH_V);
 	COMP_F("pop", POP_AX, POP_BX, POP_CX, POP_DX, POP_S, POP_V);
@@ -222,9 +222,9 @@ string ASM::Commands(string word)
 #undef COMP_F
 
 #define FUNC_JMP(STR) if (word == STR)\
-				{ word = (to_Marker(word, head_)); if (word != "0") { return word; } else return "0"; }
+					{ word = (to_Marker(word, head_)); if (word != "0") { return word; } else return "0"; }
 	FUNC_JMP("ja");
-	FUNC_JMP("jna");	
+	FUNC_JMP("jna");
 	FUNC_JMP("jb");
 	FUNC_JMP("jnb");
 	FUNC_JMP("je");
@@ -258,7 +258,7 @@ string ASM::Complicate_F(const int ax, const int bx, const int cx, const int dx,
 	string this_word;
 	std::cin >> this_word;
 
-	if ((con != INC_S) && (con != DEC_S) && (con != POP_S))
+	if (con == PUSH_S)
 	{
 		if (IsItNumber(this_word))
 		{
@@ -272,7 +272,7 @@ string ASM::Complicate_F(const int ax, const int bx, const int cx, const int dx,
 		fprintf(stderr, "Cin \"Complicate_F\" has read: %s\n", this_word.c_str());
 		return this_word;
 	}
-	if ((con == INC_S) || (con == DEC_S) || (con == POP_S) || (con == SQRT_S))
+	if (con != PUSH_S)
 	{
 		fseek(stdin, place, SEEK_SET);
 		this_word = (getStrFromNumber(con));
@@ -358,19 +358,20 @@ bool ASM::Varer()
 
 string ASM::First_level(string word)
 {
+	string that_word = "R";
 	fprintf(stderr, "Cin \"Dual_F_First\" has read: %s\n", word.c_str());
 #define FIRST_LEVEL(STR, CONST) if(STR == word)\
-		{ word = getStrFromNumber(CONST); return word; }
+			{ word = that_word + " " + getStrFromNumber(CONST); return word; }
 	FIRST_LEVEL("ax", AX);
 	FIRST_LEVEL("bx", BX);
 	FIRST_LEVEL("cx", CX);
 	FIRST_LEVEL("dx", DX);
-	FIRST_LEVEL("st", ST);
 #undef FIRST_LEVEL
 	int x = Var_.IsItVariable(word);
 	if (x != -1)
 	{
-		word = (getStrFromNumber(VAR_D) + " " + getStrFromNumber(x));
+		word = "V";
+		word = word + " " + getStrFromNumber(x);
 		return word;
 	}
 	fprintf(stderr, "But, it's not a command.\n");
@@ -380,28 +381,37 @@ string ASM::First_level(string word)
 string ASM::Second_level()
 {
 	string this_word;
-	std::cin >> this_word;
-	fprintf(stderr, "Cin \"Dual_F_Second\" has read: %s\n", this_word.c_str());
+	string that_word = "R";
+	if (std::cin >> this_word)
+	{
+		fprintf(stderr, "Cin \"Dual_F_Second\" has read: %s\n", this_word.c_str());
 #define SECOND_LEVEL(STR, CONST) if(STR == this_word)\
-	return getStrFromNumber(CONST);
-	SECOND_LEVEL("ax", AX);
-	SECOND_LEVEL("bx", BX);
-	SECOND_LEVEL("cx", CX);
-	SECOND_LEVEL("dx", DX);
-	SECOND_LEVEL("st", ST);
+	return that_word + " " + getStrFromNumber(CONST);
+		SECOND_LEVEL("ax", AX);
+		SECOND_LEVEL("bx", BX);
+		SECOND_LEVEL("cx", CX);
+		SECOND_LEVEL("dx", DX);
 #undef SECOND_LEVEL
 
-	if (IsItNumber(this_word))
-	{
-		return this_word;
+		if (IsItNumber(this_word))
+		{
+			that_word = "N";
+			return that_word = that_word + " " + this_word;
+		}
+		int x = Var_.IsItVariable(this_word);
+		if (x != -1)
+		{
+			this_word = "V";
+			return this_word = this_word + " " + getStrFromNumber(x);
+		}
+		fprintf(stderr, "But it's not a command.\n");
+		return "0";
 	}
-	int x = Var_.IsItVariable(this_word);
-	if (x != -1)
+	else
 	{
-		return this_word = (getStrFromNumber(VAR) + " " + getStrFromNumber(x));
+		fprintf(stderr, "But it's not a command.\n");
+		return "0";
 	}
-	fprintf(stderr, "But it's not a command.\n");
-	return "0";
 }
 
 string ASM::to_Marker(string word, List* list)
@@ -448,8 +458,8 @@ bool ASM::Marker(string word, List* list, data* what)
 			return false;
 		}
 	}
-	else if ((word == "call") || (word == "calla") || (word == "callna") || (word == "callb") ||\
-		(word == "callnb") || (word == "calle") || (word == "callne") || (word == "jmp") || (word == "ja") ||\
+	else if ((word == "call") || (word == "calla") || (word == "callna") || (word == "callb") || \
+		(word == "callnb") || (word == "calle") || (word == "callne") || (word == "jmp") || (word == "ja") || \
 		(word == "jnb") || (word == "jnb") || (word == "jne") || (word == "je") || (word == "jna"))
 	{
 		fprintf(stderr, "Cin \"Marker - action\" has read: %s\n", this_word.c_str());
@@ -524,9 +534,12 @@ bool ASM::Ending()
 
 void ASM::End()
 {
-	head_->print();
+	if (num != 0)
+	{
+		head_->print();
+		printf("%d", HALT);
+	}
 	fprintf(stderr, "Number of commands: %d", num);
 	fprintf(stderr, "\n...\n");
-	printf("%d", HALT);
 	fprintf(stderr, "\nENDING ASM\n");
 }
