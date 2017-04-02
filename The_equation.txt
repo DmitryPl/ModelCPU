@@ -1,0 +1,50 @@
+func main
+var A
+var B
+var D
+call dialog
+call diskr
+call x
+call y
+jmp end
+
+func dialog
+in A
+in B
+in D
+ret
+
+func diskr
+mov bx, B
+mov ax, A
+mul bx, bx
+mul ax, D
+mul ax, 4
+sub bx, ax
+sqrt bx
+mov ax, bx
+ret
+
+func x
+sub bx, B
+div bx, A
+div bx, 2
+push bx
+ret
+
+func y
+mov dx, ax
+mul dx, 2
+sub ax, dx
+sub ax, B
+div ax, A
+div ax, 2
+push ax
+ret
+
+label end
+out
+halt
+
+exit
+Корни в "ax", "bx"

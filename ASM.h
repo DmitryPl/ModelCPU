@@ -460,7 +460,7 @@ bool ASM::Marker(string word, List* list, data* what)
 	}
 	else if ((word == "call") || (word == "calla") || (word == "callna") || (word == "callb") || \
 		(word == "callnb") || (word == "calle") || (word == "callne") || (word == "jmp") || (word == "ja") || \
-		(word == "jnb") || (word == "jnb") || (word == "jne") || (word == "je") || (word == "jna"))
+		(word == "jb") || (word == "jnb") || (word == "jne") || (word == "je") || (word == "jna"))
 	{
 		fprintf(stderr, "Cin \"Marker - action\" has read: %s\n", this_word.c_str());
 		if (what->push_jx(this_word, list, num))
