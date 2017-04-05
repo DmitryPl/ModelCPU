@@ -7,15 +7,17 @@
 #include "string.h"
 #include "string"
 #include "DASM.h"
-		
-const char* Files_Main();
+
+void Files_Main(char* buffer);
 
 void main(int argc, char* argv[])
 {
 	printf("Running from %s\n", argv[0]);
 	printf("\nSTARTING DASM\n");
 	DASM Disassembler;
-	int i = Disassembler.Dialog(Files_Main());
+	char output[MAX_PATH_SIZE] = "";
+	Files_Main(output);
+	int i = Disassembler.Dialog(output);
 	switch (i)
 	{
 	case  1: fprintf(stderr, "\nEND DASM\n"); getch();
@@ -29,11 +31,12 @@ void main(int argc, char* argv[])
 	}
 }
 
-const char* Files_Main()
+void Files_Main(char* buffer)
 {
-	char output[MAX_PATH_SIZE] = "";
 	printf("\nEnter \"S\" to use standart file output.txt\n or enter way to directory like \"D:\\output.txt\"\n");
-	scanf("%s", output);
-	const char* output_path = strcmp("S", output) ? output : "output.txt";
-	return output_path;
+	scanf("%s", buffer);
+	if (!strcmp("S", buffer))
+	{
+		strcpy(buffer, "output.txt");
+	}
 }
