@@ -8,7 +8,6 @@
 #include "string"
 #include "Enum.h"
 #include "List.h"
-#include "Data.h"
 #include "Pointer.h"
 
 using std::string;
@@ -43,11 +42,11 @@ public:
 
 int DASM::Dialog(const char* output)
 {
-	printf("Do you what to disassemble the code?\n(yes)/(no)\n");
+	//printf("Do you what to disassemble the code?\n(yes)/(no)\n");
 	while (true)
 	{
-		char request[MAX_CMD_SIZE] = "";
-		scanf("%s", &request);
+		char request[MAX_CMD_SIZE] = "yes";
+		//scanf("%s", &request);
 		if (strcmp("yes", request) == 0)
 		{
 			if (File(output))
@@ -72,7 +71,7 @@ int DASM::Dialog(const char* output)
 
 bool DASM::File(const char* output)
 {
-	file = fopen(output, "r");
+	file = fopen(output, "w");
 	if (file)
 	{
 		Pointer_.push_file(file);
@@ -80,6 +79,7 @@ bool DASM::File(const char* output)
 	}
 	else
 	{
+		fprintf(stderr, "  err %s \n", strerror(errno));
 		printf("Error - File\n");
 		return false;
 	}

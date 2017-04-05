@@ -91,11 +91,11 @@ public:
 		ax(0), bx(0), cx(0), dx(0), num(0)
 	{ 	}
 
-	bool CPU_(const char* output);
+	bool Dialog(const char* output);
 
 };
 
-bool CPU::CPU_(const char* output)
+bool CPU::Dialog(const char* output)
 {
 	fprintf(stderr, "\nSTARTING CPU\n");
 	if (Files(output))
@@ -113,8 +113,8 @@ bool CPU::CPU_(const char* output)
 
 bool CPU::Files(const char* output)
 {
-	freopen("CON", "w", stdout);
-	freopen("CON", "r", stdin);
+	//freopen("CON", "w", stdout);
+	//freopen("CON", "r", stdin);
 	file = fopen(output, "r");
 	if (file)
 	{

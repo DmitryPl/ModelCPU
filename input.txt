@@ -24,3 +24,6 @@ mul NUM, ax
 pop
 push ax
 ret
+
+exit
+Answer: "dx"

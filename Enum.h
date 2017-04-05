@@ -29,9 +29,7 @@ enum Registr
 	AX = 1, BX, CX, DX
 };
 
-class CPU;
 class List;
-typedef bool(CPU::*MyFuncType)();
 
 #define HELP "It's old version of help. \nCommands:\n\n\
 div - /             pop ax - stack->ax\n\

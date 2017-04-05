@@ -9,7 +9,6 @@
 #include "iostream"
 #include "List.h"
 #include "Data.h"
-#include "List.h"
 #include "Variable.h"
 #include "algorithm"
 
