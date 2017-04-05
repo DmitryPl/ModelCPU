@@ -9,7 +9,7 @@
 #include "iostream"
 #include "List.h"
 #include "Data.h"
-#include "Enum.h"
+#include "List.h"
 #include "Variable.h"
 #include "algorithm"
 
@@ -39,7 +39,7 @@ private:
 	bool Assembler();
 	void Help();
 	void End();
-
+	bool print_LF(data& place);
 
 public:
 	const char* Dialog();
@@ -483,36 +483,22 @@ bool ASM::Marker(string word, List* list, data* what)
 
 bool ASM::Ending()
 {
-	size_t length = data_.size();
+	if (print_LF(data_))
+		if (print_LF(Func_))
+			return true;
+		else return false;
+	else return false;
+}
+
+bool ASM::print_LF(data& place)
+{
+	size_t length = place.size();
 	for (size_t i = 0; i < length; i++)
 	{
-		List* tmp1 = data_.lists_jx(i);
+		List* tmp1 = place.lists_jx(i);
 		if (tmp1)
 		{
-			int a = data_.numbers_jx(i);
-			if (a != -1)
-			{
-				tmp1->write(getStrFromNumber(a));
-			}
-			else
-			{
-				fprintf(stderr, "Error - Ending - wrong label\n");
-				return false;
-			}
-		}
-		else
-		{
-			fprintf(stderr, "Error - Ending - wrong label\n");
-			return false;
-		}
-	}
-	length = Func_.size();
-	for (size_t i = 0; i < length; i++)
-	{
-		List* tmp1 = Func_.lists_jx(i);
-		if (tmp1)
-		{
-			int a = Func_.numbers_jx(i);
+			int a = place.numbers_jx(i);
 			if (a != -1)
 			{
 				tmp1->write(getStrFromNumber(a));
