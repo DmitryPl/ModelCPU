@@ -58,11 +58,17 @@ int DASM::Dialog(const char* output)
 					fclose(file);
 					return 1;
 				}
-				fclose(file);
-				else return 0;
+				else
+				{
+					fclose(file);
+					return 0;
+				}
 			}
-			fclose(file);
-			else return 0;
+			else
+			{
+				fclose(file);
+				return 0;
+			}
 		}
 		if (strcmp("no", request) == 0)
 		{

@@ -108,8 +108,11 @@ bool CPU::Dialog(const char* output)
 		fprintf(stderr, "\nEND CPU\n");
 		return true;
 	}
-	fclose(file);
-	else return false;
+	else
+	{
+		fclose(file);
+		return false;
+	}
 }
 
 bool CPU::Files(const char* output)
