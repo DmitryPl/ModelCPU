@@ -58,7 +58,7 @@ int DASM::Dialog(const char* output)
 					fclose(file);
 					return 1;
 				}
-				flose(file);
+				fclose(file);
 				else return 0;
 			}
 			fclose(file);
