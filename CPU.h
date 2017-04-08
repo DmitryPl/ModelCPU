@@ -100,17 +100,16 @@ bool CPU::Dialog(const char* output)
 	fprintf(stderr, "\nSTARTING CPU\n");
 	if (Files(output))
 	{
-		doNothing();
-	}
-	if (Reader())
-	{
+		if (Reader())
+		{
+			fclose(file);
+			fprintf(stderr, "\nEND CPU\n");
+			return true;
+		}
 		fclose(file);
-		fprintf(stderr, "\nEND CPU\n");
-		return true;
 	}
 	else
 	{
-		fclose(file);
 		return false;
 	}
 }
@@ -203,7 +202,7 @@ MyFuncType CPU::Commands(int word)
 
 #define CHECK_SINGLE(con, ax, bx, cx, dx, var, POINTER)\
 	if((word == con) || (word ==  ax) || (word == bx) || (word == cx) || (word == dx) || (word == var))\
-						{ if(Single_CPU(word)){ MyFuncType res = &CPU::POINTER; return res; } else return nullptr; }
+							{ if(Single_CPU(word)){ MyFuncType res = &CPU::POINTER; return res; } else return nullptr; }
 	CHECK_SINGLE(PUSH_S, PUSH_AX, PUSH_BX, PUSH_CX, PUSH_DX, PUSH_V, PUSH_);
 	CHECK_SINGLE(SQRT_S, SQRT_AX, SQRT_BX, SQRT_CX, SQRT_DX, SQRT_V, SQRT_);
 	CHECK_SINGLE(POP_S, POP_AX, POP_BX, POP_CX, POP_DX, POP_V, POP_);
@@ -213,7 +212,7 @@ MyFuncType CPU::Commands(int word)
 #undef CHECK_SINGLE
 
 #define CHECK_JMP(CONST, POINTER) if(word == CONST)\
-				{ Call_Jmp(word); MyFuncType res = &CPU::POINTER; return res; }
+					{ Call_Jmp(word); MyFuncType res = &CPU::POINTER; return res; }
 	CHECK_JMP(JMP, JMP_L);
 	CHECK_JMP(J_A, J_A_L);
 	CHECK_JMP(J_NA, J_NA_L);
@@ -224,7 +223,7 @@ MyFuncType CPU::Commands(int word)
 #undef CHECK_JMP
 
 #define CHECK_CALL(CONST, POINTER) if(word == CONST)\
-				{ Call_Jmp(word); MyFuncType res = &CPU::POINTER; return res; }
+					{ Call_Jmp(word); MyFuncType res = &CPU::POINTER; return res; }
 	CHECK_CALL(CALL, CALL_F);
 	CHECK_CALL(CALL_A, CALL_A_F);
 	CHECK_CALL(CALL_NA, CALL_NA_F);
@@ -235,7 +234,7 @@ MyFuncType CPU::Commands(int word)
 #undef CHECK_CALL
 
 #define CHECK_DUAL(CONST, POINTER) if (word == CONST)\
-			{ Dual_CPU(0); MyFuncType res = &CPU::POINTER; return res; }
+				{ Dual_CPU(0); MyFuncType res = &CPU::POINTER; return res; }
 	CHECK_DUAL(ADD_D, ADD_D_);
 	CHECK_DUAL(DIV_D, DIV_D_);
 	CHECK_DUAL(MUL_D, MUL_D_);
@@ -508,7 +507,7 @@ bool CPU::RET_()
 
 int Mov(int first, int second) { return second; }
 int Mul(int first, int second) { return first * second; }
-int Div(int first, int second) 
+int Div(int first, int second)
 {
 	if (second != 0)
 	{
@@ -646,7 +645,7 @@ int* CPU::Choose_Reg(const int x)
 		return &bx;
 	}
 	if ((x == IN_CX) || (x == PUSH_CX) || (x == SQRT_CX) || (x == POP_CX) || (x == INC_CX) || (x == DEC_CX))
-	{	
+	{
 		if (x == IN_CX)
 		{
 			printf("ENTER NUMBER (CX):\n");
@@ -733,7 +732,7 @@ bool CPU::POP_()
 {
 	int command = China.return_com(num);
 	if (command == POP_S)
-	{	
+	{
 		if (!Stack_CPU.empty())
 		{
 			Stack_CPU.pop();

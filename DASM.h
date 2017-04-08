@@ -66,7 +66,6 @@ int DASM::Dialog(const char* output)
 			}
 			else
 			{
-				fclose(file);
 				return 0;
 			}
 		}
