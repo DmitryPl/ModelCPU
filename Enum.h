@@ -9,7 +9,11 @@
 #include "iostream"
 #include "algorithm"
 
+class List;
 using std::string;
+
+class CPU;
+typedef bool(CPU::*MyFuncType)();
 
 const int MAX_CMD_SIZE = 16;
 const int MAX_PATH_SIZE = 128;
@@ -28,8 +32,6 @@ enum Registr
 {
 	AX = 1, BX, CX, DX
 };
-
-class List;
 
 #define HELP "It's old version of help. \nCommands:\n\n\
 div - /             pop ax - stack->ax\n\
